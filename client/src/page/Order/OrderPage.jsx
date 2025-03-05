@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Table, Select, Button, Divider } from 'antd';
+import { ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import Navbar from '../../components/Navbar';
 
 const { Option } = Select;
 
@@ -14,17 +16,13 @@ function OrderPage() {
             { key: '3', item: 'สปาเกตตี้', quantity: 1, price: 80, status: 'finish' },
             { key: '4', item: 'ชาเย็น', quantity: 3, price: 30, status: 'finish' },
         ],
-        A03: [
-            { key: '3', item: 'สปาเกตตี้', quantity: 1, price: 80, status: 'waiting' },
-            { key: '4', item: 'ชาเย็น', quantity: 3, price: 30, status: 'waiting' },
-        ],
     });
 
     const [activeTable, setActiveTable] = useState(null); // กำหนดว่าโต๊ะไหนจะถูกเปิดดูรายละเอียด
     const [tableStatus, setTableStatus] = useState({
-        A01: 'รออาหาร',
-        A02: 'ได้รับอาหารแล้วครบแล้ว',
-        A03: 'รอรับออเดอร์',
+        A01: 'กำลังรอ',
+        A02: 'กำลังรอ',
+        A03: 'กำลังรอ',
     });
 
     // ฟังก์ชันอัพเดตสถานะรวมของโต๊ะ
@@ -43,6 +41,16 @@ function OrderPage() {
         );
         updatedOrders[tableKey] = updatedItems;
         setOrders(updatedOrders);
+    };
+
+    // ฟังก์ชันตรวจสอบว่าออเดอร์ทุกตัวในโต๊ะมีสถานะเป็น 'finish'
+    const checkAllItemsFinished = (tableKey) => {
+        return orders[tableKey].every((item) => item.status === 'finish' || item.status === 'canceled');
+    };
+
+    // ฟังก์ชันตรวจสอบว่าออเดอร์ทุกตัวในโต๊ะมีสถานะเป็น 'waiting'
+    const checkAllItemsWaiting = (tableKey) => {
+        return orders[tableKey].every((item) => item.status === 'waiting');
     };
 
     // คำนวณราคาทั้งหมดของออเดอร์ในโต๊ะ
@@ -79,8 +87,8 @@ function OrderPage() {
                     onChange={(value) => handleItemStatusChange(value, activeTable, record.key)}
                 >
                     <Option value="waiting">กำลังรอ</Option>
-                    <Option value="cooking">อยู่ในครัว</Option>
-                    <Option value="finish">เสร็จสิ้น</Option>
+                    <Option value="cooking">กำลังทำ</Option>
+                    <Option value="finish">เสร็จแล้ว</Option>
                     <Option value="canceled">ยกเลิกรายการ</Option>
                 </Select>
             ),
@@ -93,65 +101,98 @@ function OrderPage() {
     };
 
     return (
-        <div className="container border rounded-lg mx-auto p-5 px-10 mt-10">
-            <h2 className="text-xl font-semibold mb-4">รายการออเดอร์</h2>
+        <>
+            <Navbar status="order" />
+            <div className="container border rounded-lg mx-auto p-5 px-10 mt-10">
+                <h2 className="text-xl font-semibold mb-4">รายการออเดอร์</h2>
 
-            {/* แสดงรายการโต๊ะ */}
-            <div className="mb-5 flex flex-wrap">
-                {Object.keys(orders).map((tableKey) => (
-                    <div key={tableKey} className="">
-                        <Button
-                            type="default"
-                            className="mb-2 mr-2"
-                            onClick={() => handleTableClick(tableKey)}
-                        >
-                            โต๊ะ {tableKey} - สถานะรวม: {tableStatus[tableKey]}
-                        </Button>
-                    </div>
-                ))}
-            </div>
-
-            {/* เมื่อคลิกที่โต๊ะจะแสดงรายละเอียดออเดอร์ในโต๊ะนั้น */}
-            {activeTable && (
-                <div>
-                    <Divider orientation="left">{`โต๊ะ ${activeTable} - รายละเอียดออเดอร์`}</Divider>
-                    <Table
-                        columns={columns}
-                        dataSource={orders[activeTable]}
-                        pagination={false}
-                        bordered
-                        rowKey="key"
-                        footer={() => (
-                            <div>
-                                <strong>ราคาทั้งหมด: </strong>{calculateTotalPrice(orders[activeTable])} บาท
-                            </div>
-                        )}
-                    />
-
-                    {/* แสดงสถานะของโต๊ะ */}
-                    <div className="flex flex-col items-end justify-end mt-5">
-                        {activeTable && (
-                            <div className="flex items-center gap-2">
-                                <p>สถานะโต๊ะ: </p>
-                                <p>{tableStatus[activeTable]}</p>
-                            </div>
-                        )}
-                        {activeTable && (
-                            <div className="flex gap-3 mt-5">
-                                <Button color="danger" variant="solid">
-                                    ยกเลิกรายการ
-                                </Button>
-                                {tableStatus[activeTable] === 'paid' || tableStatus[activeTable] === 'canceled' ? (
-                                    <Button type="primary">จบรายการ</Button>
-                                ) : (
-                                    <Button type="primary">อัพเดทรายการ</Button>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                {/* แสดงรายการโต๊ะ */}
+                <div className="mb-5 flex flex-wrap">
+                    {Object.keys(orders).map((tableKey) => (
+                        <div key={tableKey} className="">
+                            <Button
+                                type="default"
+                                className="mb-2 mr-2"
+                                onClick={() => handleTableClick(tableKey)}
+                            >
+                                โต๊ะ {tableKey} - สถานะรวม: {tableStatus[tableKey]}
+                            </Button>
+                        </div>
+                    ))}
                 </div>
-            )}
-        </div>
+
+                {/* เมื่อคลิกที่โต๊ะจะแสดงรายละเอียดออเดอร์ในโต๊ะนั้น */}
+
+                {activeTable && (
+                    <div>
+                        <Divider orientation="left">{`โต๊ะ ${activeTable} - รายละเอียดออเดอร์`}</Divider>
+                        <div className='flex justify-end mb-1'>
+                            <Button
+                                icon={<ReloadOutlined />}
+                                color="default" variant="filled"
+                            >
+                                รีเฟรช
+                            </Button>
+                        </div>
+                        <Table
+                            columns={columns}
+                            dataSource={orders[activeTable]}
+                            pagination={false}
+                            bordered
+                            rowKey="key"
+                            footer={() => (
+                                <div>
+                                    <strong>ราคาทั้งหมด: </strong>{calculateTotalPrice(orders[activeTable])} บาท
+                                </div>
+                            )}
+                        />
+
+                        {/* แสดงสถานะของโต๊ะ */}
+                        <div className="flex flex-col items-end justify-end mt-5">
+                            {activeTable && (
+                                <div className="flex items-center gap-2">
+                                    <p>สถานะโต๊ะ: </p>
+                                    <p>{tableStatus[activeTable]}</p>
+                                </div>
+                            )}
+                            {activeTable && (
+                                <div className="flex gap-3 mt-5">
+                                    <Button color="danger" variant="solid" icon={<CloseCircleOutlined />} >
+                                        ยกเลิกรายการ
+                                    </Button>
+                                    {tableStatus[activeTable] === "กำลังรอ" ? (
+                                        <Button
+                                            type="primary"
+                                            icon={<CheckCircleOutlined />}
+                                        >
+                                            รับออเดอร์
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type="primary"
+                                            icon={<ExclamationCircleOutlined />}
+                                        >
+                                            อัพเดทรายการ
+                                        </Button>
+                                    )}
+                                    {checkAllItemsFinished(activeTable) ? (
+                                        <Button
+                                            type="primary"
+                                            icon={<CheckCircleOutlined />}
+                                        >
+                                            ชำระเงิน
+                                        </Button>
+                                    ) : (
+                                        <></>
+                                    )}
+
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
 

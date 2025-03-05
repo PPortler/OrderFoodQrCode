@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function Navbar() {
+function Navbar({ status }) {
+    console.log(status)
     return (
-        <div className="bg-blue-500 text-white py-2 px-5">
+        <div className="bg-blue-500 text-white px-5">
             <div className="flex justify-between items-center container mx-auto">
                 <a href="#order" className="text-lg font-semibold">Order Food QR</a>
                 <div className="flex">
-                    <a href="#order" className="hover:bg-blue-700 px-3 py-2 rounded">ออเดอร์</a>
-                    <a href="#menu" className="hover:bg-blue-700 px-3 py-2 rounded">รายการอาหาร</a>
-                    <a href="#table" className="hover:bg-blue-700 px-3 py-2 rounded">จัดการโต๊ะ</a>
-                    <a href="#order-history" className="hover:bg-blue-700 px-3 py-2 rounded">ประวัติออเดอร์</a>
+                    <a href="/" className={`py-3 ${status === "order" ? "border-b-white border-b-4 rounded-none":""} hover:bg-blue-700 px-3 py-2 `}>ออเดอร์</a>
+                    <a href="/manage-menu" className={`py-3 ${status === "menu" ? "border-b-white border-b-4 rounded-none":""} hover:bg-blue-700 px-3 py-2 `}>รายการอาหาร</a>
+                    <a href="/manage-table" className={`py-3 ${status === "table" ? "border-b-white border-b-4 rounded-none":""} hover:bg-blue-700 px-3 py-2 `}>จัดการโต๊ะ</a>
+                    <a href="/order-history" className={`py-3 ${status === "order-history" ? "border-b-white border-b-4 rounded-none":""} hover:bg-blue-700 px-3 py-2 `}>ประวัติออเดอร์</a>
                 </div>
             </div>
         </div>
