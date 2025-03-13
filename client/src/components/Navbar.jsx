@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 function Navbar({ status }) {
-    console.log(status)
     return (
         <div className="bg-blue-500 text-white px-5">
             <div className="flex justify-between items-center container mx-auto">

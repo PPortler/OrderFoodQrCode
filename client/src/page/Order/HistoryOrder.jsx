@@ -6,7 +6,7 @@ const { Panel } = Collapse;
 
 function HistoryOrder() {
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 20; // ปรับจำนวนออเดอร์ต่อหน้าให้เหมาะสม
+    const pageSize = 10; // ปรับจำนวนออเดอร์ต่อหน้าให้เหมาะสม
 
     const [orders, setOrders] = useState([
         { key: '1', table: 'A01', items: [{ item: 'ข้าวผัด', quantity: 1, price: 50, status: 'canceled' }, { item: 'น้ำเปล่า', quantity: 2, price: 20, status: 'finish' }], date: '2025-03-05 12:30' },
@@ -29,7 +29,6 @@ function HistoryOrder() {
         { title: 'จำนวน', dataIndex: 'quantity', key: 'quantity' },
         { title: 'ราคา (บาท)', dataIndex: 'price', key: 'price', render: (text) => `${text} บาท` },
         { title: 'สถานะ', dataIndex: 'status', key: 'status', render: (status) => <Tag color={status === 'canceled' ? 'red' : 'green'}>{status === 'canceled' ? 'ยกเลิก' : 'เสร็จสิ้น'}</Tag> },
-        { title: 'ราคารวม (บาท)', key: 'total', render: (_, record) => record.quantity * record.price },
     ];
 
     return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Select, Button, Divider } from 'antd';
 import { ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Navbar from '../../components/Navbar';
@@ -13,8 +13,8 @@ function OrderPage() {
             { key: '2', item: 'น้ำเปล่า', quantity: 2, price: 20, status: 'waiting' },
         ],
         A02: [
-            { key: '3', item: 'สปาเกตตี้', quantity: 1, price: 80, status: 'finish' },
-            { key: '4', item: 'ชาเย็น', quantity: 3, price: 30, status: 'finish' },
+            { key: '3', item: 'สปาเกตตี้', quantity: 1, price: 80, status: 'waiting' },
+            { key: '4', item: 'ชาเย็น', quantity: 3, price: 30, status: 'waiting' },
         ],
     });
 
@@ -26,11 +26,27 @@ function OrderPage() {
     });
 
     // ฟังก์ชันอัพเดตสถานะรวมของโต๊ะ
-    const handleTableStatusChange = (value, tableKey) => {
-        setTableStatus({
-            ...tableStatus,
-            [tableKey]: value,
-        });
+    const handleTableStatusChange = (tableKey) => {
+        const allInKitchen = orders[tableKey].some((order) => order.status === 'cooking')
+        const allInFinish = orders[tableKey].every((order) => order.status === 'finish')
+        const allInCancel = orders[tableKey].every((order) => order.status === 'canceled')
+
+        if (allInKitchen) {
+            setTableStatus({
+                ...tableStatus,
+                [tableKey]: "อยู่ในครัว",
+            });
+        } else if (allInFinish) {
+            setTableStatus({
+                ...tableStatus,
+                [tableKey]: "ได้รับอาหารแล้ว",
+            });
+        } else if (allInCancel) {
+            setTableStatus({
+                ...tableStatus,
+                [tableKey]: "รายการถูกยกเลิก",
+            });
+        } 
     };
 
     // ฟังก์ชันอัพเดตสถานะของรายการอาหาร
@@ -69,6 +85,18 @@ function OrderPage() {
             title: 'จำนวน',
             dataIndex: 'quantity',
             key: 'quantity',
+            render: (quantity, record) => (
+                <div>
+                    <input
+                        type="number"
+                        value={quantity}
+                        min="1"
+                        onChange={(e) => handleQuantityChange(record.key, e.target.value)}
+                        style={{ width: 60 }}
+                        disabled={tableStatus[activeTable] === "กำลังรอ"}
+                    />
+                </div>
+            ),
         },
         {
             title: 'ราคา',
@@ -85,9 +113,10 @@ function OrderPage() {
                     value={status}
                     style={{ width: 120 }}
                     onChange={(value) => handleItemStatusChange(value, activeTable, record.key)}
+                    disabled={tableStatus[activeTable] === "กำลังรอ"}
                 >
                     <Option value="waiting">กำลังรอ</Option>
-                    <Option value="cooking">กำลังทำ</Option>
+                    <Option value="cooking">อยู่ในครัว</Option>
                     <Option value="finish">เสร็จแล้ว</Option>
                     <Option value="canceled">ยกเลิกรายการ</Option>
                 </Select>
@@ -98,6 +127,27 @@ function OrderPage() {
     // ฟังก์ชันเปิด/ปิดการแสดงรายละเอียดของโต๊ะ
     const handleTableClick = (tableKey) => {
         setActiveTable(activeTable === tableKey ? null : tableKey);
+    };
+
+    //รับออเดอร์
+    const confirmOrder = (value, tableKey) => {
+        setTableStatus({
+            ...tableStatus,
+            [tableKey]: value,
+        });
+    }
+
+    //สำหรับการจัดการจำนวน
+    const handleQuantityChange = (itemKey, newQuantity) => {
+        const updatedOrders = { ...orders };
+        const updatedItems = updatedOrders[activeTable].map((item) => {
+            if (item.key === itemKey) {
+                return { ...item, quantity: Math.max(1, parseInt(newQuantity, 10)) }; // Prevent quantity from being less than 1
+            }
+            return item;
+        });
+        updatedOrders[activeTable] = updatedItems;
+        setOrders(updatedOrders);
     };
 
     return (
@@ -122,7 +172,6 @@ function OrderPage() {
                 </div>
 
                 {/* เมื่อคลิกที่โต๊ะจะแสดงรายละเอียดออเดอร์ในโต๊ะนั้น */}
-
                 {activeTable && (
                     <div>
                         <Divider orientation="left">{`โต๊ะ ${activeTable} - รายละเอียดออเดอร์`}</Divider>
@@ -164,6 +213,7 @@ function OrderPage() {
                                         <Button
                                             type="primary"
                                             icon={<CheckCircleOutlined />}
+                                            onClick={() => confirmOrder("กำลังรออาหาร", activeTable)}
                                         >
                                             รับออเดอร์
                                         </Button>
@@ -171,16 +221,17 @@ function OrderPage() {
                                         <Button
                                             type="primary"
                                             icon={<ExclamationCircleOutlined />}
+                                            onClick={() => handleTableStatusChange(activeTable)}
                                         >
                                             อัพเดทรายการ
                                         </Button>
                                     )}
-                                    {checkAllItemsFinished(activeTable) ? (
+                                    {checkAllItemsFinished(activeTable) && tableStatus[activeTable] === "ได้รับอาหารแล้ว" ? (
                                         <Button
                                             type="primary"
                                             icon={<CheckCircleOutlined />}
                                         >
-                                            ชำระเงิน
+                                            ชำระเงิน {calculateTotalPrice(orders[activeTable])} ฿
                                         </Button>
                                     ) : (
                                         <></>
