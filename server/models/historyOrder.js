@@ -4,7 +4,6 @@ const Schema = mongo.Schema;
 let historyOrderSchema = new Schema({
     table: {
         type: String,
-        required: true
     },
     image: {
         type: String,
@@ -40,4 +39,4 @@ let historyOrderSchema = new Schema({
 
 })
 
-module.exports = mongo.model('Orders', historyOrderSchema)
+module.exports = mongo.model('HistoryOrders', historyOrderSchema)

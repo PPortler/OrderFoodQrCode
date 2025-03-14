@@ -35,6 +35,11 @@ orderRoute.route('/update-order/:id').put(async (req, res, next) => {
         const data = await OrderModel.findByIdAndUpdate(req.params.id, {
             $set: req.body
         }, { new: true });
+        // หากไม่พบข้อมูลในฐานข้อมูล
+        if (!data) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        console.log(data)
         res.status(200).json(data)
     } catch (err) {
         next(err)
