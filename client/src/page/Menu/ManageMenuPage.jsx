@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import Navbar from '../../components/Navbar';
+import MenuData from '../../assets/menu.json'
+
 
 function ManageMenuPage() {
     const [form] = Form.useForm(); // สร้าง instance ของ form
-    const [menuItems, setMenuItems] = useState([
-        { key: '1', name: 'ข้าวผัด', description: 'ข้าวผัดหมูไข่ดาว', price: 60, quantity: 10, image: 'https://freshfood.co.th/wp-content/uploads/2024/08/american-shrimp-fried-rice-served-with-chili-fish-sauce-thai-food-1024x683.jpg' },
-        { key: '2', name: 'สปาเกตตี้', description: 'สปาเกตตี้หมูสับ', price: 120, quantity: 5, image: 'https://freshfood.co.th/wp-content/uploads/2024/08/american-shrimp-fried-rice-served-with-chili-fish-sauce-thai-food-1024x683.jpg' },
-        { key: '3', name: 'น้ำเปล่า', description: 'น้ำดื่ม', price: 10, quantity: 20, image: 'https://freshfood.co.th/wp-content/uploads/2024/08/american-shrimp-fried-rice-served-with-chili-fish-sauce-thai-food-1024x683.jpg' },
-        { key: '4', name: 'ชาเย็น', description: 'ชาเย็นหวาน', price: 25, quantity: 15, image: 'https://freshfood.co.th/wp-content/uploads/2024/08/american-shrimp-fried-rice-served-with-chili-fish-sauce-thai-food-1024x683.jpg' },
-    ]);
+    const [menuItems, setMenuItems] = useState(MenuData); // ใช้ข้อมูลจาก JSON แทน
 
+console.log(MenuData)
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 

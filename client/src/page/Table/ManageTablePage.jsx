@@ -2,19 +2,11 @@ import React, { useState } from 'react';
 import Navbar from '../../components/Navbar';
 import { Card, Button } from 'antd';
 import { QRCodeCanvas } from 'qrcode.react'; // ใช้ QRCodeCanvas แทน QRCode
+import tableData from '../../assets/table.js'
 
 function ManageTablePage() {
   // สร้างข้อมูลตัวอย่างของโต๊ะ
-  const [tables, setTables] = useState([
-    { id: 1, tableName: 'A01', url: `${process.env.REACT_APP_REACT_URL}/order/1` },
-    { id: 2, tableName: 'A02', url: `${process.env.REACT_APP_REACT_URL}/order/2` },
-    { id: 3, tableName: 'A03', url: `${process.env.REACT_APP_REACT_URL}/order/3` },
-    { id: 4, tableName: 'A04', url: `${process.env.REACT_APP_REACT_URL}/order/4` },
-    { id: 5, tableName: 'A05', url: `${process.env.REACT_APP_REACT_URL}/order/5` },
-    { id: 6, tableName: 'A06', url: `${process.env.REACT_APP_REACT_URL}/order/6` },
-    { id: 7, tableName: 'A07', url: `${process.env.REACT_APP_REACT_URL}/order/7` },
-    { id: 8, tableName: 'A08', url: `${process.env.REACT_APP_REACT_URL}/order/8` },
-  ]);
+  const [tables, setTables] = useState(tableData);
 
   const handleDownloadQRCode = (url) => {
     const canvas = document.getElementById('qrcode-canvas');
@@ -43,7 +35,7 @@ function ManageTablePage() {
               <QRCodeCanvas id="qrcode-canvas" value={table.url} size={150} />
               <div className="mt-4">
                 <p>ลิงค์สำหรับสั่งอาหาร</p>
-                <p>{table.url}</p>
+                <p className=' overflow-hidden text-ellipsis whitespace-nowrap'>{table.url}</p>
               </div>
             </Card>
           ))}

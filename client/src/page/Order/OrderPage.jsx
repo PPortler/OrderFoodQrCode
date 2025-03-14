@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Table, Select, Button, Divider } from 'antd';
 import { ReloadOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Navbar from '../../components/Navbar';
+import axios from 'axios'
 
 const { Option } = Select;
 
 function OrderPage() {
+
     // ข้อมูลตัวอย่างออเดอร์ที่แยกตามโต๊ะ พร้อมราคากับจำนวน
     const [orders, setOrders] = useState({
         A01: [
@@ -17,6 +19,21 @@ function OrderPage() {
             { key: '4', item: 'ชาเย็น', quantity: 3, price: 30, status: 'waiting' },
         ],
     });
+
+    //เรียก order ที่มัอยู่
+    useEffect(() => {
+        getOrder();
+    }, [orders])
+
+    const getOrder = async () => {
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_PORT_API}/api/order`);
+            setOrders(res.data);  // เก็บข้อมูลที่ได้จาก API ลงใน state
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
     const [activeTable, setActiveTable] = useState(null); // กำหนดว่าโต๊ะไหนจะถูกเปิดดูรายละเอียด
     const [tableStatus, setTableStatus] = useState({
@@ -46,7 +63,7 @@ function OrderPage() {
                 ...tableStatus,
                 [tableKey]: "รายการถูกยกเลิก",
             });
-        } 
+        }
     };
 
     // ฟังก์ชันอัพเดตสถานะของรายการอาหาร
