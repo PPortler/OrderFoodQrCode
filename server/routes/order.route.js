@@ -21,14 +21,22 @@ orderRoute.route('/add-order').post(async (req, res, next) => {
     }
 })
 
-orderRoute.route('/:id').get(async (req, res, next) => {
+orderRoute.route('/:table').get(async (req, res, next) => {
     try {
-        const data = await OrderModel.findById(req.params.id);
-        res.status(200).json(data)
+        // ค้นหาตาม table ที่รับมาจาก URL
+        const data = await OrderModel.findOne({ table: req.params.table });
+
+        // ตรวจสอบว่าพบข้อมูลหรือไม่
+        if (!data) {
+            return res.status(404).json({ message: 'Order not found for this table' });
+        }
+
+        // ถ้าพบข้อมูล ให้ส่งข้อมูลกลับไป
+        res.status(200).json(data);
     } catch (err) {
-        next(err)
+        next(err);  // ถ้ามีข้อผิดพลาดในการค้นหา
     }
-})
+});
 
 orderRoute.route('/update-order/:id').put(async (req, res, next) => {
     try {

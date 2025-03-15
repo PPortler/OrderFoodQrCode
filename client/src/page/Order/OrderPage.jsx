@@ -121,7 +121,7 @@ function OrderPage() {
     const calculateTotalPrice = (tableOrders) => {
         let total = 0
         tableOrders?.map((ob) => {
-            total += parseFloat(ob.price)
+            total += parseFloat(ob.price) * ob.quantity
         })
         return total
     };
@@ -208,6 +208,7 @@ function OrderPage() {
     //บันทึกรายการ
     const handleSubmitOrder = async (tableKey, value) => {
         let allowed = false
+        let status = ""
         if (value === "ยกเลิกรายการ") {
             const result = await Swal.fire({
                 title: 'ลบรายการ?',
@@ -225,6 +226,7 @@ function OrderPage() {
             // ถ้าเลือก 'ใช่, ยกเลิก'
             if (result.isConfirmed) {
                 allowed = true;
+                status = "รายการถูกยกเลิก"
             }
         }
         if (value === "ได้รับอาหารครบแล้ว") {
@@ -244,6 +246,8 @@ function OrderPage() {
             // ถ้าเลือก 'ใช่, ยกเลิก'
             if (result.isConfirmed) {
                 allowed = true;
+                status = "ชำระเงินแล้ว"
+
             }
         }
 
@@ -253,7 +257,7 @@ function OrderPage() {
                 ...orders,
                 [tableKey]: {
                     ...orders[tableKey], // คงข้อมูลเดิมของโต๊ะ
-                    status: value,    // อัพเดตสถานะใหม่
+                    status: status,    // อัพเดตสถานะใหม่
                 },
             }
             try {
@@ -286,9 +290,13 @@ function OrderPage() {
     return (
         <>
             <Navbar status="order" />
-            <div className="container border rounded-lg mx-auto p-5 px-10 mt-10">
-
-                <div className='flex justify-between mb-4'>
+            <div className="container border-[#FFCC00] border-4 relative rounded-lg mx-auto p-5 px-10 my-10 mt-24">
+                <div className=' w-full flex justify-center'>
+                    <div className='absolute top-[-58px] border-4 border-[#FFCC00] rounded-full bg-white p-1'>
+                        <img src="/logo.jpg" alt="logo" className='w-24 h-24 rounded-full' />
+                    </div>
+                </div>
+                <div className='flex justify-between mb-4 relative'>
                     <h2 className="text-xl font-semibold ">รายการออเดอร์</h2>
                     <Button
                         icon={<ReloadOutlined />}
@@ -303,11 +311,11 @@ function OrderPage() {
                 {orders?.length === 0 && loader === false ? (
                     <div className='flex flex-col items-center gap-4 justify-center mt-5 text-xs text-gray-400'>
                         <img src="https://stickershop.line-scdn.net/stickershop/v1/product/1910981/LINEStorePC/main.png?v=1" alt="Logo" className='w-56 h-56' />  {/* เพิ่ม class mr-2 เพื่อระยะห่างจากข้อความ */}
-                        <BeatLoader
+                        {/* <BeatLoader
                             color="#3c82f6"
                             size={8}
-                        />
-
+                        /> */}
+                        ยังไม่มีออเดอร์
                     </div>
                 ) : (
                     <>
@@ -315,11 +323,11 @@ function OrderPage() {
                             {Object.keys(orders).map((tableKey) => (
                                 <div key={tableKey} className="">
                                     <Button
-                                        type="default"
-                                        className={`${tableKey === activeTable ? "bg-gray-300 pointer-events-none" : "hover:bg-gray-300"} mb-2 mr-2`}
+                                        type="none"
+                                        className={`${tableKey === activeTable ? "bg-gray-300 pointer-events-none" : "hover:border-[#333333] hover:outline-[#333333] hover:text-[#333333]"} border-gray-200 mb-2 mr-2`}
                                         onClick={() => handleTableClick(tableKey)}
                                     >
-                                        โต๊ะ {orders[tableKey]?.table} - สถานะรวม: {orders[tableKey]?.status}
+                                        โต๊ะ {orders[tableKey]?.table} - สถานะ: {orders[tableKey]?.status}
                                     </Button>
                                 </div>
                             ))}
@@ -360,17 +368,19 @@ function OrderPage() {
                                             </Button>
                                             {orders[activeTable].status === "กำลังรอ" ? (
                                                 <Button
-                                                    type="primary"
+                                                    type="none"
                                                     icon={<CheckCircleOutlined />}
                                                     onClick={() => confirmOrder("กำลังรออาหาร", activeTable)}
+                                                    className='bg-[#FFCC00] hover:opacity-90'
                                                 >
                                                     รับออเดอร์
                                                 </Button>
                                             ) : (
                                                 <Button
-                                                    type="primary"
+                                                    type="none"
                                                     icon={<ExclamationCircleOutlined />}
                                                     onClick={() => handleTableStatusChange(activeTable)}
+                                                    className='bg-[#FFCC00] hover:opacity-90'
                                                 >
                                                     อัพเดทรายการ
                                                 </Button>

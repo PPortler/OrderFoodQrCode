@@ -5,6 +5,7 @@ import ManageMenuPage from './page/Menu/ManageMenuPage';
 import ManageTablePage from './page/Table/ManageTablePage';
 import OrderFood from './page/Order/[id]';
 import HistoryOrder from './page/Order/HistoryOrder';
+import BasketOrder from './page/Order/BasketOrder';
 
 function App() {
   return (

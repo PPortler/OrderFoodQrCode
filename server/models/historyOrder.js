@@ -10,6 +10,10 @@ let historyOrderSchema = new Schema({
     },
     menu: [
         {
+            key: {
+                type: String,
+                required: true
+            },
             name: {
                 type: String
             },

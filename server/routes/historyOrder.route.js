@@ -20,7 +20,7 @@ orderRoute.route('/add-order').post(async (req, res, next) => {
                 // เปลี่ยน price เป็นตัวเลข (จาก string เป็น number)
                 const price = parseFloat(item.price);
                 // คำนวณราคา
-                return total + price;
+                return total + price * item.quantity;
             }, 0);
         };
         // คำนวณราคาทั้งหมดจาก menu ใน request body

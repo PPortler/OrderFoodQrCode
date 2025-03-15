@@ -6,11 +6,13 @@ let orderSchema = new Schema({
         type: String,
         required: true
     },
-    image: {
-        type: String,
-    },
+    
     menu: [
         {
+            key: {
+                type: String,
+                required: true
+            },
             name: {
                 type: String
             },
@@ -23,7 +25,10 @@ let orderSchema = new Schema({
             status: {
                 type: String,
                 default: "waiting"
-            }
+            },
+            image: {
+                type: String,
+            },
         }
     ],
     status: {
