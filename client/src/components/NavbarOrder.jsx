@@ -11,7 +11,7 @@ function NavbarOrder({ table, setBasketOpen }) {
                     <a href="/manage-table" className={`py-3 ${status === "table" ? "border-b-white border-b-4 rounded-none":""} hover:bg-blue-700 px-3 py-2 `}>จัดการโต๊ะ</a>
                     <a href="/order-history" className={`py-3 ${status === "order-history" ? "border-b-white border-b-4 rounded-none":""} hover:bg-blue-700 px-3 py-2 `}>ประวัติออเดอร์</a>
                 </div> */}
-                <div onClick={() => setBasketOpen(true)}>
+                <div className='cursor-pointer' onClick={() => setBasketOpen(true)}>
                    โต๊ะ: {table}
                 </div>
             </div>

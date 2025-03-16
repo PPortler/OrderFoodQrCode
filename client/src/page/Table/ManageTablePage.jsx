@@ -21,7 +21,7 @@ function ManageTablePage() {
   return (
     <>
       <Navbar status="table" />
-      <div className="container border rounded-lg mx-auto p-5 px-10 mt-10">
+      <div className="container border rounded-lg mx-auto p-5 px-10 my-10">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {tables.map((table) => (
             <Card

@@ -50,6 +50,8 @@ console.log(MenuData)
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
                         style={{ marginRight: 8 }}
+                        className='bg-[#FFCC00] hover:opacity-90'
+                        type='none'
                     />
                     <Button
                         icon={<DeleteOutlined />}
@@ -101,12 +103,13 @@ console.log(MenuData)
     return (
         <>
             <Navbar status="menu" />
-            <div className="container border rounded-lg mx-auto p-5 px-10 mt-10">
+            <div className="container border-[#FFCC00] border-4 rounded-lg mx-auto p-5 px-10 my-10">
                 <Button
-                    type="primary"
+                    type="none"
                     icon={<PlusOutlined />}
                     onClick={handleAdd}
                     style={{ marginBottom: 16 }}
+                    className='bg-[#FFCC00] hover:opacity-90'
                 >
                     เพิ่มรายการอาหาร
                 </Button>

@@ -24,6 +24,6 @@ app.route('/').get((req,res) => {
     return res.status(200).send(`server is running on port ${process.env.PORT}`)
 })
 app.use('/api/order', orderAPI)
-app.use('/api/order/history', historyOrderAPI)
+app.use('/api/order-history', historyOrderAPI)
 
 module.exports = app;

@@ -7,6 +7,8 @@ import BasketOrder from './BasketOrder';
 import menu from '../../assets/menu.json'
 import axios from 'axios';
 import Loader from '../../components/Loader';
+import { Select } from 'antd';
+
 
 function OrderFood() {
   const { id } = useParams();
@@ -105,15 +107,31 @@ function OrderFood() {
     }
 
   }
+
+  const [selectedCategory, setSelectedCategory] = useState('ทั้งหมด'); // สถานะเก็บประเภทที่เลือก
+
+  const handleChange = (value) => {
+    setSelectedCategory(value); // ตั้งค่าสถานะประเภทที่เลือก
+  };
+
+  // กรองเมนูตามประเภทที่เลือก
+  const filteredMenu =
+    selectedCategory === 'ทั้งหมด'
+      ? menu
+      : menu?.filter((m) => m.type === selectedCategory);
+
+  //ประเภทอาหาร
+  const categories = ['แนะนำ', 'ตำ', 'ผัด', 'ทอด', 'ยำ', 'ต้ม', 'กับแกล้ม', 'เครื่องดื่ม'];
+
   return (
     <>
       <NavbarOrder table={id} setBasketOpen={setBasketOpen} />
       {basketOpen ? (
-        <BasketOrder setBasketOpen={setBasketOpen} basket={basket} setBasket={setBasket} table={id} order={order} getOrder={getOrder} setLoader={setLoader}/>
+        <BasketOrder setBasketOpen={setBasketOpen} basket={basket} setBasket={setBasket} table={id} order={order} getOrder={getOrder} setLoader={setLoader} />
       ) : (
         <>
           <div>
-            <img src="/poster.jpg" alt="porter" className='w-full h-56' />
+            <img src="/poster.jpg" alt="porter" className='w-full h-56 md:h-96' />
           </div>
           <div className='bg-white relative bottom-10 rounded-tr-2xl rounded-tl-2xl '>
             <div className='flex justify-center flex-col items-center relative bottom-14'>
@@ -123,37 +141,116 @@ function OrderFood() {
               <p>จิ้มจุ่มลานนา มหาสารคาม</p>
             </div>
 
-            <div className='relative bottom-14 px-3 mt-3 '>
-              <h1 className='font-bold'>เมนูทั้งหมด</h1>
-              <div className='mt-2 overflow-y-scroll'>
-                {menu?.map((m, index) => (
-                  <div className='p-3 bg-white border shadow rounded-sm flex gap-3 ' key={m._id}> {/* เพิ่ม key ที่ไม่ซ้ำกัน */}
-                    <img src={m.image} alt="porter" className='w-24 h-24' />
-                    <div className='flex flex-col justify-between w-full'>
-                      <div>
-                        <p>{m.name}</p>
-                        <p>฿ {m.price}</p>
-                      </div>
-                      <div className='flex justify-end w-full'>
-                        {basket?.menu?.some((n) => n.key === m.key) ? (
-                          <div className='flex items-center gap-2'>
-                            <div className='bg-[#ffcc02]' onClick={() => handleDeleteBasket(m)}>
-                              <Icon path={mdiMinus} size={1} />
+            <div className='relative bottom-14 px-3 lg:px-16 mt-3 '>
+              <div className='flex justify-between items-end'>
+                <h1 className='font-bold'>ประเภท</h1>
+                <Select
+                  defaultValue="ทั้งหมด"
+                  style={{
+                    width: 120,
+                  }}
+                  onChange={handleChange} // ตั้งค่าสถานะเมื่อเลือกประเภท
+                  options={[
+                    {
+                      value: 'ทั้งหมด',
+                      label: 'ทั้งหมด',
+                    },
+                    ...categories.map((category) => ({
+                      value: category,
+                      label: category,
+                    })),
+                  ]}
+                />
+              </div>
+              <div className='overflow-y-scroll'>
+                {selectedCategory === 'ทั้งหมด' ? (
+                  categories.map((category) => (
+                    <div key={category} className='mt-5'>
+                      <h3 className="font-bold text-xl">เมนู{category}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
+                        {menu
+                          ?.filter((m) => m.type === category) // กรองเมนูตามประเภท
+                          .map((m) => (
+                            <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m._id}>
+                              <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
+                              <div className="flex flex-col justify-between w-full">
+                                <div>
+                                  <p>{m.name}</p>
+                                  <p>฿ {m.price}</p>
+                                </div>
+                                <div className="flex justify-end w-full">
+                                  {basket?.menu?.some((n) => n.key === m.key) ? (
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className="bg-[#ffcc02]"
+                                        onClick={() => handleDeleteBasket(m)}
+                                      >
+                                        <Icon path={mdiMinus} size={1} />
+                                      </div>
+                                      <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
+                                      <div
+                                        className="bg-[#ffcc02]"
+                                        onClick={() => handleAddBasket(m)}
+                                      >
+                                        <Icon path={mdiPlus} size={1} />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
+                                      <Icon path={mdiPlus} size={1} />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
-                            <div className='bg-[#ffcc02]' onClick={() => handleAddBasket(m)}>
-                              <Icon path={mdiPlus} size={1} />
-                            </div>
-                          </div>
-                        ) : (
-                          <div className='bg-[#ffcc02]' onClick={() => handleAddBasket(m)}>
-                            <Icon path={mdiPlus} size={1} />
-                          </div>
-                        )}
+                          ))}
                       </div>
                     </div>
+                  ))
+                ) : (
+                  // ถ้าเลือกประเภทเฉพาะ, กรองและแสดงเฉพาะประเภทนั้น
+                  <div className='mt-5'>
+                    <h3 className="font-bold text-xl">เมนู{selectedCategory}</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
+                      {menu
+                        ?.filter((m) => m.type === selectedCategory) // กรองเมนูตามประเภทที่เลือก
+                        .map((m) => (
+                          <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m._id}>
+                            <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
+                            <div className="flex flex-col justify-between w-full">
+                              <div>
+                                <p>{m.name}</p>
+                                <p>฿ {m.price}</p>
+                              </div>
+                              <div className="flex justify-end w-full">
+                                {basket?.menu?.some((n) => n.key === m.key) ? (
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className="bg-[#ffcc02]"
+                                      onClick={() => handleDeleteBasket(m)}
+                                    >
+                                      <Icon path={mdiMinus} size={1} />
+                                    </div>
+                                    <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
+                                    <div
+                                      className="bg-[#ffcc02]"
+                                      onClick={() => handleAddBasket(m)}
+                                    >
+                                      <Icon path={mdiPlus} size={1} />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
+                                    <Icon path={mdiPlus} size={1} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -168,7 +265,7 @@ function OrderFood() {
         </>
       )}
       {loader && (
-        <Loader/>
+        <Loader />
       )}
     </>
   )

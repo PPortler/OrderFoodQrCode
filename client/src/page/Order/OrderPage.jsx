@@ -11,17 +11,6 @@ const { Option } = Select;
 
 function OrderPage() {
 
-    // {
-    //     A01: [
-    //         { key: '1', item: 'ข้าวผัด', quantity: 1, price: 50, status: 'waiting' },
-    //         { key: '2', item: 'น้ำเปล่า', quantity: 2, price: 20, status: 'waiting' },
-    //     ],
-    //     A02: [
-    //         { key: '3', item: 'สปาเกตตี้', quantity: 1, price: 80, status: 'waiting' },
-    //         { key: '4', item: 'ชาเย็น', quantity: 3, price: 30, status: 'waiting' },
-    //     ],
-    // }
-
     // ข้อมูลตัวอย่างออเดอร์ที่แยกตามโต๊ะ พร้อมราคากับจำนวน
     const [orders, setOrders] = useState([]);
 
@@ -119,11 +108,16 @@ function OrderPage() {
     };
 
     const calculateTotalPrice = (tableOrders) => {
-        let total = 0
-        tableOrders?.map((ob) => {
-            total += parseFloat(ob.price) * ob.quantity
-        })
-        return total
+        let total = 0;
+        // กรองรายการที่มี status เป็น "ได้รับอาหารแล้ว"
+        const validOrders = tableOrders?.filter((ob) => ob.status !== "canceled");
+
+        // คำนวณราคาสำหรับรายการที่กรองออกมา
+        validOrders?.map((ob) => {
+            total += parseFloat(ob.price) * ob.quantity;
+        });
+
+        return total;
     };
 
     // คอลัมน์สำหรับ Table
@@ -190,6 +184,7 @@ function OrderPage() {
                 status: value, // อัพเดตสถานะของโต๊ะ
             },
         });
+        handleTableStatusChange(activeTable)
     }
 
     //สำหรับการจัดการจำนวน
@@ -251,6 +246,7 @@ function OrderPage() {
             }
         }
 
+        const totalPrice = calculateTotalPrice(orders[tableKey]?.menu)
         if (allowed) {
             setLoader(true);
             let NewOrder = {
@@ -258,12 +254,13 @@ function OrderPage() {
                 [tableKey]: {
                     ...orders[tableKey], // คงข้อมูลเดิมของโต๊ะ
                     status: status,    // อัพเดตสถานะใหม่
+                    totalPrice: totalPrice
                 },
             }
             try {
                 let tempOrder = NewOrder[tableKey]
                 // ส่งคำสั่ง PUT ไปยัง API เพื่ออัพเดตข้อมูลในฐานข้อมูล
-                const res = await axios.post(`${process.env.REACT_APP_PORT_API}/api/order/history/add-order`, tempOrder);
+                const res = await axios.post(`${process.env.REACT_APP_PORT_API}/api/order-history/add-order`, tempOrder);
 
                 if (res.status === 201) {
                     const resOrder = await axios.delete(`${process.env.REACT_APP_PORT_API}/api/order/delete-order/${tempOrder._id}`);
