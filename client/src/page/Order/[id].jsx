@@ -133,15 +133,16 @@ function OrderFood() {
           <div>
             <img src="/poster.jpg" alt="porter" className='w-full h-56 md:h-96' />
           </div>
-          <div className='bg-white relative bottom-10 rounded-tr-2xl rounded-tl-2xl '>
-            <div className='flex justify-center flex-col items-center relative bottom-14'>
+          <div className='bg-white relative bottom-10 rounded-tr-2xl rounded-tl-2xl pt-16'>
+            <div className='flex justify-center flex-col items-center absolute top-[-57px] w-full'>
               <div className='bg-white rounded-full p-2  '>
                 <img src="/logo.jpg" alt="porter" className='w-24 h-24 rounded-full' />
               </div>
+            </div>
+            <div className='flex justify-center'>
               <p>จิ้มจุ่มลานนา มหาสารคาม</p>
             </div>
-
-            <div className='relative bottom-14 px-3 lg:px-16 mt-5 '>
+            <div className='relative  px-3 lg:px-16 mt-3 '>
               <Tabs
                 defaultActiveKey="ทั้งหมด"
                 centered
@@ -189,7 +190,7 @@ function OrderFood() {
             </div>
           </div>
           {(basket?.menu?.length > 0) && (
-            <div className='w-full bg-white p-5 shadow fixed bottom-0 cursor-pointer'>
+            <div className='w-full bg-white p-5 shadow sticky bottom-0 cursor-pointer'>
               <div onClick={() => setBasketOpen(true)} className='w-full rounded-lg flex gap-2  justify-center items-center p-3 bg-[#ffcc02]'>
                 <Icon path={mdiCart} size={1} />
                 <p>{basket.menu.length} รายการในตะกร้า</p>
