@@ -141,7 +141,7 @@ function OrderFood() {
               <p>จิ้มจุ่มลานนา มหาสารคาม</p>
             </div>
 
-            <div className='relative bottom-14 px-3 lg:px-16 mt-3 '>
+            <div className='relative bottom-14 px-5 lg:px-16 mt-5 '>
               <div className='flex justify-between items-end'>
                 <h1 className='font-bold'>ประเภท</h1>
                 <Select
@@ -165,7 +165,7 @@ function OrderFood() {
               <div className='overflow-y-scroll'>
                 {selectedCategory === 'ทั้งหมด' ? (
                   categories.map((category) => (
-                    <div key={category} className='mt-5'>
+                    <div key={category} className='mb-5'>
                       <h3 className="font-bold text-xl">เมนู{category}</h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
                         {menu

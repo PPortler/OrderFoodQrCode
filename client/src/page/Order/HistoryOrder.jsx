@@ -17,19 +17,21 @@ function HistoryOrder() {
     }, [])
 
     const getOrder = async () => {
-        setLoader(true)
+        setLoader(true);
         try {
             const res = await axios.get(`${process.env.REACT_APP_PORT_API}/api/order-history`);
-            setHistoryOrder(res.data);  // เก็บข้อมูลที่ได้จาก API ลงใน state
-
+            // เรียงข้อมูลตามวันที่จากล่าสุดไปหาน้อยสุด
+            const sortedOrders = res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            setHistoryOrder(sortedOrders);  // เก็บข้อมูลที่ได้จาก API ลงใน state
             setTimeout(() => {
                 setLoader(false); // เปลี่ยนสถานะการโหลด
-            }, 500); // หน่วงเวลา 2 วินาที
+            }, 500); // หน่วงเวลา 500 มิลลิวินาที
         } catch (err) {
-            console.log(err)
-            setLoader(false)
+            console.log(err);
+            setLoader(false);
         }
     }
+
 
     //pagination
     const itemsPerPage = 10; // จำนวนออเดอร์ต่อหน้า

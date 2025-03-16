@@ -74,13 +74,17 @@ function BasketOrder({ setBasketOpen, basket, setBasket, table, order, getOrder,
 
     //คิดราคารวม
     const calculateTotalPrice = (tableOrders) => {
-        let total = 0
-        tableOrders?.map((ob) => {
-            total += parseFloat(ob.price) * ob.quantity
-        })
-        return total
-    };
+        let total = 0;
+        // กรองรายการที่มี status เป็น "ได้รับอาหารแล้ว"
+        const validOrders = tableOrders?.filter((ob) => ob.status !== "canceled");
 
+        // คำนวณราคาสำหรับรายการที่กรองออกมา
+        validOrders?.map((ob) => {
+            total += parseFloat(ob.price) * ob.quantity;
+        });
+
+        return total;
+    };
     console.log(order)
     return (
         <>
