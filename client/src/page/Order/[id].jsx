@@ -7,7 +7,7 @@ import BasketOrder from './BasketOrder';
 import menu from '../../assets/menu.json'
 import axios from 'axios';
 import Loader from '../../components/Loader';
-import { Select } from 'antd';
+import { Select, Tabs } from 'antd';
 
 
 function OrderFood() {
@@ -125,11 +125,11 @@ function OrderFood() {
 
   return (
     <>
-      <NavbarOrder table={id} setBasketOpen={setBasketOpen} />
+      <NavbarOrder table={id} setBasketOpen={setBasketOpen} orderCount={order?.menu?.length} />
       {basketOpen ? (
         <BasketOrder setBasketOpen={setBasketOpen} basket={basket} setBasket={setBasket} table={id} order={order} getOrder={getOrder} setLoader={setLoader} />
       ) : (
-        <>
+        <div>
           <div>
             <img src="/poster.jpg" alt="porter" className='w-full h-56 md:h-96' />
           </div>
@@ -141,79 +141,18 @@ function OrderFood() {
               <p>จิ้มจุ่มลานนา มหาสารคาม</p>
             </div>
 
-            <div className='relative bottom-14 px-5 lg:px-16 mt-5 '>
-              <div className='flex justify-between items-end'>
-                <h1 className='font-bold'>ประเภท</h1>
-                <Select
-                  defaultValue="ทั้งหมด"
-                  style={{
-                    width: 120,
-                  }}
-                  onChange={handleChange} // ตั้งค่าสถานะเมื่อเลือกประเภท
-                  options={[
-                    {
-                      value: 'ทั้งหมด',
-                      label: 'ทั้งหมด',
-                    },
-                    ...categories.map((category) => ({
-                      value: category,
-                      label: category,
-                    })),
-                  ]}
-                />
-              </div>
-              <div className='overflow-y-scroll'>
-                {selectedCategory === 'ทั้งหมด' ? (
-                  categories.map((category) => (
-                    <div key={category} className='mb-5'>
-                      <h3 className="font-bold text-xl">เมนู{category}</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
-                        {menu
-                          ?.filter((m) => m.type === category) // กรองเมนูตามประเภท
-                          .map((m) => (
-                            <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m._id}>
-                              <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
-                              <div className="flex flex-col justify-between w-full">
-                                <div>
-                                  <p>{m.name}</p>
-                                  <p>฿ {m.price}</p>
-                                </div>
-                                <div className="flex justify-end w-full">
-                                  {basket?.menu?.some((n) => n.key === m.key) ? (
-                                    <div className="flex items-center gap-2">
-                                      <div
-                                        className="bg-[#ffcc02]"
-                                        onClick={() => handleDeleteBasket(m)}
-                                      >
-                                        <Icon path={mdiMinus} size={1} />
-                                      </div>
-                                      <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
-                                      <div
-                                        className="bg-[#ffcc02]"
-                                        onClick={() => handleAddBasket(m)}
-                                      >
-                                        <Icon path={mdiPlus} size={1} />
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
-                                      <Icon path={mdiPlus} size={1} />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  // ถ้าเลือกประเภทเฉพาะ, กรองและแสดงเฉพาะประเภทนั้น
-                  <div className='mt-5'>
-                    <h3 className="font-bold text-xl">เมนู{selectedCategory}</h3>
+            <div className='relative bottom-14 px-3 lg:px-16 mt-5 '>
+              <Tabs
+                defaultActiveKey="ทั้งหมด"
+                centered
+                onChange={handleChange}
+                items={categories.map((category) => ({
+                  label: `เมนู${category}`,
+                  key: category,
+                  children: (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
                       {menu
-                        ?.filter((m) => m.type === selectedCategory) // กรองเมนูตามประเภทที่เลือก
+                        .filter((m) => selectedCategory === 'ทั้งหมด' || m.type === selectedCategory) // กรองเมนูตามประเภท
                         .map((m) => (
                           <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m._id}>
                             <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
@@ -225,17 +164,11 @@ function OrderFood() {
                               <div className="flex justify-end w-full">
                                 {basket?.menu?.some((n) => n.key === m.key) ? (
                                   <div className="flex items-center gap-2">
-                                    <div
-                                      className="bg-[#ffcc02]"
-                                      onClick={() => handleDeleteBasket(m)}
-                                    >
+                                    <div className="bg-[#ffcc02]" onClick={() => handleDeleteBasket(m)}>
                                       <Icon path={mdiMinus} size={1} />
                                     </div>
                                     <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
-                                    <div
-                                      className="bg-[#ffcc02]"
-                                      onClick={() => handleAddBasket(m)}
-                                    >
+                                    <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
                                       <Icon path={mdiPlus} size={1} />
                                     </div>
                                   </div>
@@ -249,9 +182,10 @@ function OrderFood() {
                           </div>
                         ))}
                     </div>
-                  </div>
-                )}
-              </div>
+                  ),
+                }))}
+              />
+
             </div>
           </div>
           {(basket?.menu?.length > 0) && (
@@ -262,7 +196,7 @@ function OrderFood() {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
       {loader && (
         <Loader />
