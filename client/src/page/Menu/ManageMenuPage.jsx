@@ -19,22 +19,22 @@ console.log(MenuData)
             dataIndex: 'name',
             key: 'name',
         },
-        {
-            title: 'รายละเอียด',
-            dataIndex: 'description',
-            key: 'description',
-        },
+        // {
+        //     title: 'รายละเอียด',
+        //     dataIndex: 'description',
+        //     key: 'description',
+        // },
         {
             title: 'ราคา',
             dataIndex: 'price',
             key: 'price',
             render: (text) => `${text} บาท`,
         },
-        {
-            title: 'จำนวน',
-            dataIndex: 'quantity',
-            key: 'quantity',
-        },
+        // {
+        //     title: 'จำนวน',
+        //     dataIndex: 'quantity',
+        //     key: 'quantity',
+        // },
         {
             title: 'รูปภาพ',
             dataIndex: 'image',
@@ -137,13 +137,13 @@ console.log(MenuData)
                         >
                             <Input />
                         </Form.Item>
-                        <Form.Item
+                        {/* <Form.Item
                             name="description"
                             label="รายละเอียด"
                             rules={[{ required: true, message: 'กรุณากรอกรายละเอียด' }]}
                         >
                             <Input />
-                        </Form.Item>
+                        </Form.Item> */}
                         <Form.Item
                             name="price"
                             label="ราคา"
@@ -151,13 +151,13 @@ console.log(MenuData)
                         >
                             <InputNumber min={0} />
                         </Form.Item>
-                        <Form.Item
+                        {/* <Form.Item
                             name="quantity"
                             label="จำนวน"
                             rules={[{ required: true, message: 'กรุณากรอกจำนวน' }]}
                         >
                             <InputNumber min={0} />
-                        </Form.Item>
+                        </Form.Item> */}
                         <Form.Item
                             name="image"
                             label="ลิงค์รูปภาพ"

@@ -2,18 +2,33 @@ import React, { useState, useEffect } from 'react'
 import NavbarOrder from '../../components/NavbarOrder'
 import Icon from '@mdi/react';
 import { mdiPlus, mdiCart, mdiMinus } from '@mdi/js';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import BasketOrder from './BasketOrder';
 import menu from '../../assets/menu.json'
 import axios from 'axios';
 import Loader from '../../components/Loader';
-import { Select, Tabs } from 'antd';
-
+import { Tabs } from 'antd';
+import tableData from '../../assets/table.js'
 
 function OrderFood() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  //loader
+  useEffect(() => {
+    // ตรวจสอบว่า id มีอยู่ใน tableData หรือไม่
+    const isValidTable = tableData.some(table => table.tableName === id);
+
+    if (!isValidTable) {
+      navigate("/notfound"); // เปลี่ยนเส้นทางไป NotFound ถ้า id ไม่ถูกต้อง
+    }
+  }, [id, navigate]);
+
+  //เรียก order ที่มัอยู่
+  useEffect(() => {
+    getOrder();
+  }, [])
+
+  //loader 
   const [loader, setLoader] = useState(false);
 
   //ตะกร้ารายการ
@@ -91,10 +106,6 @@ function OrderFood() {
   };
 
   const [order, setOrder] = useState([])
-  //เรียก order ที่มัอยู่
-  useEffect(() => {
-    getOrder();
-  }, [])
 
   const getOrder = async () => {
     try {
