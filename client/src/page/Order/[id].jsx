@@ -132,7 +132,7 @@ function OrderFood() {
       : menu?.filter((m) => m.type === selectedCategory);
 
   //ประเภทอาหาร
-  const categories = ['แนะนำ', 'ตำ', 'ผัด', 'ทอด', 'ยำ', 'ต้ม', 'กับแกล้ม', 'เครื่องดื่ม'];
+  const categories = ['แนะนำ', 'ตำ', 'ผัด', 'ทอด', 'ยำ', 'ลาบ', 'ต้ม', 'จิ้มจุ่ม','ย่าง', 'กับแกล้ม', 'เครื่องดื่ม'];
 
   return (
     <>
@@ -176,16 +176,16 @@ function OrderFood() {
                               <div className="flex justify-end w-full">
                                 {basket?.menu?.some((n) => n.key === m.key) ? (
                                   <div className="flex items-center gap-2">
-                                    <div className="bg-[#ffcc02]" onClick={() => handleDeleteBasket(m)}>
+                                    <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleDeleteBasket(m)}>
                                       <Icon path={mdiMinus} size={1} />
                                     </div>
                                     <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
-                                    <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
+                                    <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
                                       <Icon path={mdiPlus} size={1} />
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
+                                  <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
                                     <Icon path={mdiPlus} size={1} />
                                   </div>
                                 )}
@@ -202,7 +202,7 @@ function OrderFood() {
           </div>
           {(basket?.menu?.length > 0) && (
             <div className='w-full bg-white p-5 shadow sticky bottom-0 cursor-pointer'>
-              <div onClick={() => setBasketOpen(true)} className='w-full rounded-lg flex gap-2  justify-center items-center p-3 bg-[#ffcc02]'>
+              <div onClick={() => setBasketOpen(true)} className='w-full rounded-lg flex gap-2  justify-center items-center p-3 bg-[#ffcc02] cursor-pointer'>
                 <Icon path={mdiCart} size={1} />
                 <p>{basket.menu.length} รายการในตะกร้า</p>
               </div>

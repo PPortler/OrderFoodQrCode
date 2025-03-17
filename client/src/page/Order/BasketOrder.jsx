@@ -181,21 +181,21 @@ function BasketOrder({ setBasketOpen, basket, setBasket, table, order, getOrder,
                                                     {basket?.menu?.some((n) => n.key === m.key) ? (
                                                         <div className="flex items-center gap-2">
                                                             <div
-                                                                className="bg-[#ffcc02]"
+                                                                className="bg-[#ffcc02] cursor-pointer"
                                                                 onClick={() => handleDeleteBasket(m)}
                                                             >
                                                                 <Icon path={mdiMinus} size={1} />
                                                             </div>
                                                             <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
                                                             <div
-                                                                className="bg-[#ffcc02]"
+                                                                className="bg-[#ffcc02] cursor-pointer"
                                                                 onClick={() => handleAddBasket(m)}
                                                             >
                                                                 <Icon path={mdiPlus} size={1} />
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <div className="bg-[#ffcc02]" onClick={() => handleAddBasket(m)}>
+                                                        <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
                                                             <Icon path={mdiPlus} size={1} />
                                                         </div>
                                                     )}
@@ -216,7 +216,7 @@ function BasketOrder({ setBasketOpen, basket, setBasket, table, order, getOrder,
                                 <div className='mt-2 overflow-y-scroll'>
                                     {order?.menu?.map((m, index) => (
                                         <div key={index} className='p-3 bg-white border shadow rounded-sm flex gap-3 '>
-                                            <img src={`${m.image}`} alt="porter" className='w-24 h-24' />
+                                            <img src={`${m.image}`} alt="porter" className='w-24 min-w-24 h-24' />
                                             <div className='flex flex-col justify-between w-full  '>
                                                 <div className=''>
                                                     <p>{m.name}</p>
