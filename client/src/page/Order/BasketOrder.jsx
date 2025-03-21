@@ -83,7 +83,7 @@ function BasketOrder({ setBasketOpen, basket, setBasket, table, order, getOrder,
             total += parseFloat(ob.price) * ob.quantity;
         });
 
-        return total;
+        return total.toLocaleString(); // จะแสดงเป็น 1,000, 1,500, ...
     };
 
     //เพิ่มรายการอาหาร
@@ -155,7 +155,7 @@ function BasketOrder({ setBasketOpen, basket, setBasket, table, order, getOrder,
             return prevBasket; // ถ้าไม่มีเมนูใน basket ไม่ต้องทำอะไร
         });
     };
-    console.log(order)
+
     return (
         <div className='flex flex-col justify-between min-h-screen'>
             <div>

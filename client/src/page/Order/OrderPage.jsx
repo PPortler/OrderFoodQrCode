@@ -117,7 +117,7 @@ function OrderPage() {
             total += parseFloat(ob.price) * ob.quantity;
         });
 
-        return total;
+        return total.toLocaleString();
     };
 
     // คอลัมน์สำหรับ Table

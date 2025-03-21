@@ -26,6 +26,7 @@ function OrderFood() {
   //เรียก order ที่มัอยู่
   useEffect(() => {
     getOrder();
+    getHistoryOrder();
   }, [])
 
   //loader 
@@ -132,8 +133,90 @@ function OrderFood() {
       : menu?.filter((m) => m.type === selectedCategory);
 
   //ประเภทอาหาร
-  const categories = ['แนะนำ', 'ตำ', 'ผัด', 'ทอด', 'ยำ', 'ลาบ', 'ต้ม', 'จิ้มจุ่ม','ย่าง', 'กับแกล้ม', 'เครื่องดื่ม'];
+  const categories = ['ทั้งหมด', 'แนะนำ', 'ตำ', 'ผัด', 'ทอด', 'ยำ', 'ลาบ', 'ต้ม', 'จิ้มจุ่ม', 'ย่าง', 'กับแกล้ม', 'เครื่องดื่ม'];
 
+  //เรียก order ที่มีอยู่
+  const [historyOrder, setHistoryOrder] = useState([])
+
+  const getHistoryOrder = async () => {
+    setLoader(true);
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_PORT_API}/api/order-history`);
+      // เรียงข้อมูลตามวันที่จากล่าสุดไปหาน้อยสุด
+      const sortedOrders = res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      setHistoryOrder(sortedOrders);  // เก็บข้อมูลที่ได้จาก API ลงใน state
+      setTimeout(() => {
+        setLoader(false); // เปลี่ยนสถานะการโหลด
+      }, 500); // หน่วงเวลา 500 มิลลิวินาที
+    } catch (err) {
+      console.log(err);
+      setLoader(false);
+    }
+  }
+
+  const [filteredOrders, setFilteredOrders] = useState([])
+  useEffect(() => {
+    // หาวันที่ 7 วันก่อนจากวันนี้
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // คัดกรองออเดอร์จาก historyOrder ที่อยู่ในช่วง 7 วันล่าสุด
+    const filteredOrders = historyOrder.filter(order => {
+      const orderDate = new Date(order?.updatedAt);  // แปลง string เป็น Date
+
+      // เช็คว่าออเดอร์นี้อยู่ในช่วง 7 วันล่าสุด และตรงปีและเดือนที่เลือก
+      return orderDate >= sevenDaysAgo;
+    });
+
+    setFilteredOrders(filteredOrders);
+
+  }, [historyOrder]);
+
+  // ฟังก์ชันกำหนดเมนูขายดีแต่ละสัปดาห์
+  const [sellingWell, setSellingWell] = useState([])
+
+  useEffect(() => {
+    // วนลูปผ่านทุกออเดอร์ใน filteredOrders
+    const allMenus = [];
+
+    filteredOrders.forEach(order => {
+      if (order.status !== "รายการถูกยกเลิก") {
+        // วนลูปผ่าน menu ของแต่ละออเดอร์
+        order.menu.forEach(menuItem => {
+          allMenus.push(menuItem);  // รวมเมนูทั้งหมดเข้ามา
+        });
+      }
+    });
+
+    // นับจำนวนการขายของแต่ละเมนู
+    const menuCount = allMenus.reduce((acc, menuItem) => {
+      const existingMenu = acc.find(item => item.key === menuItem.key);
+
+      if (existingMenu) {
+        existingMenu.quantity += menuItem.quantity;  // เพิ่มจำนวนการสั่งซื้อ
+      } else {
+        acc.push({
+          ...menuItem,
+          quantity: menuItem.quantity,  // สร้างข้อมูลใหม่ถ้าเมนูยังไม่มี
+        });
+      }
+      return acc;
+    }, []);
+
+    // เรียงเมนูตามจำนวนการขาย (ขายดีที่มีจำนวนมากที่สุด)
+    const sortedMenus = menuCount.sort((a, b) => b.quantity - a.quantity);
+
+    // เก็บ 5 อันดับเมนูที่ขายดีที่สุด
+    const topSellingMenus = sortedMenus.slice(0, 5); // หรือปรับจำนวนตามต้องการ
+
+    // กำหนดค่าให้ sellingWell
+    setSellingWell(topSellingMenus);
+
+  }, [filteredOrders]);
+
+
+  console.log(filteredOrders)
+  console.log("sellingWell: ", sellingWell)
   return (
     <>
       <NavbarOrder table={id} setBasketOpen={setBasketOpen} orderCount={order?.menu?.length} />
@@ -162,37 +245,84 @@ function OrderFood() {
                   label: `เมนู${category}`,
                   key: category,
                   children: (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-3">
-                      {menu
-                        .filter((m) => selectedCategory === 'ทั้งหมด' || m.type === selectedCategory) // กรองเมนูตามประเภท
-                        .map((m) => (
-                          <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m._id}>
-                            <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
-                            <div className="flex flex-col justify-between w-full">
-                              <div>
-                                <p>{m.name}</p>
-                                <p>฿ {m.price}</p>
-                              </div>
-                              <div className="flex justify-end w-full">
-                                {basket?.menu?.some((n) => n.key === m.key) ? (
-                                  <div className="flex items-center gap-2">
-                                    <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleDeleteBasket(m)}>
-                                      <Icon path={mdiMinus} size={1} />
+                    <div className="">
+                      {sellingWell?.length > 0 && category === "ทั้งหมด" && (
+                        <div>
+                          <p className='mb-4 text-lg'>เมนูขายดี ประจำสัปดาห์</p>
+                          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 '> 
+                            {sellingWell.map((m) => (
+                              <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m.key}>
+                                <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
+                                <div className="flex flex-col justify-between w-full">
+                                  <div>
+                                    <p>{m.name}</p>
+                                    <p>฿ {m.price}</p>
+                                  </div>
+                                  <div className="flex justify-between w-full items-end">
+                                    <div className='text-gray-400 text-xs'>
+                                      ขายแล้ว {m.quantity}
                                     </div>
-                                    <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
-                                    <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
-                                      <Icon path={mdiPlus} size={1} />
+                                    <div>
+                                      {basket?.menu?.some((n) => n.key === m.key) ? (
+                                        <div className="flex items-center gap-2">
+                                          <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleDeleteBasket(m)}>
+                                            <Icon path={mdiMinus} size={1} />
+                                          </div>
+                                          <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
+                                          <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
+                                            <Icon path={mdiPlus} size={1} />
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
+                                          <Icon path={mdiPlus} size={1} />
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
-                                ) : (
-                                  <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
-                                    <Icon path={mdiPlus} size={1} />
-                                  </div>
-                                )}
+                                </div>
                               </div>
-                            </div>
+                            ))}
                           </div>
-                        ))}
+                        </div>
+                      )}
+
+                      {/* เมนูตามประเภท */}
+                      <div>
+                        <p className='my-4 text-lg'>เมนู{category}</p>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
+                          {menu
+                            .filter((m) => selectedCategory === 'ทั้งหมด' || m.type === selectedCategory) // กรองเมนูตามประเภท
+                            .map((m) => (
+                              <div className="p-3 bg-white border shadow rounded-sm flex gap-3" key={m._id}>
+                                <img src={m.image} alt="menu" className="min-w-24 w-24 h-24" />
+                                <div className="flex flex-col justify-between w-full">
+                                  <div>
+                                    <p>{m.name}</p>
+                                    <p>฿ {m.price}</p>
+                                  </div>
+                                  <div className="flex justify-end w-full">
+                                    {basket?.menu?.some((n) => n.key === m.key) ? (
+                                      <div className="flex items-center gap-2">
+                                        <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleDeleteBasket(m)}>
+                                          <Icon path={mdiMinus} size={1} />
+                                        </div>
+                                        <p>{basket?.menu.find((n) => n.key === m.key)?.quantity}</p>
+                                        <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
+                                          <Icon path={mdiPlus} size={1} />
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="bg-[#ffcc02] cursor-pointer" onClick={() => handleAddBasket(m)}>
+                                        <Icon path={mdiPlus} size={1} />
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
                     </div>
                   ),
                 }))}
