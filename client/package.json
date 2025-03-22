@@ -3,10 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ag-media/react-pdf-table": "^2.0.1",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
-    "@react-pdf/renderer": "^4.3.0",
+    "@react-pdf/font": "^3.0.1",
+    "@react-pdf/layout": "^4.2.0",
+    "@react-pdf/pdfkit": "^4.0.0",
+    "@react-pdf/primitives": "^4.0.0",
+    "@react-pdf/reconciler": "^1.1.3",
+    "@react-pdf/render": "^4.0.2",
+    "@react-pdf/renderer": "^4.1.6",
+    "@react-pdf/types": "^2.7.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -47,6 +53,7 @@
     ]
   },
   "devDependencies": {
+    "@ag-media/react-pdf-table": "^2.0.1",
     "@tailwindcss/postcss": "^4.0.9",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.3",

@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     table: {
         width: "100%",
         borderColor: "1px solid #f3f4f6",
-        marginBottom: "20px",
+        margin: "20px 0",
     },
     tableHeader: {
         backgroundColor: "#e5e5e5",
@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
 
 
 const RecieptPDF = ({ order }) => {
-    console.log(order)
     const tableData = order.menu.map(item => ({
         description: item.name,
         quantity: item.quantity,
@@ -73,7 +72,7 @@ const RecieptPDF = ({ order }) => {
     const totalData = [
         {
             label: "รวมทั้งสิ้น",
-            value: `${order.totalPrice} บาท`, 
+            value: `${order.totalPrice} บาท`,
         },
     ];
 
@@ -111,16 +110,15 @@ const RecieptPDF = ({ order }) => {
                         <Text> อำเภอพยัคฆภูมิพิสัย 44110</Text>
                     </View>
                 </View>
-
                 {/* Render the table */}
                 <Table style={styles.table}>
                     <TH style={[styles.tableHeader, styles.textBold]}>
                         <TD style={styles.td}>ชื่อรายการ</TD>
                         <TD style={styles.td}>จำนวน</TD>
                         <TD style={styles.td}>ราคา</TD>
-                        <TD style={styles.td}>รวม</TD>
+                        <TD style={styles.td}>ยอดรวม</TD>
                     </TH>
-                    {tableData.map((item, index) => (
+                    {(tableData || []).map((item, index) => (
                         <TR key={index}>
                             <TD style={styles.td}>{item.description}</TD>
                             <TD style={styles.td}>{item.quantity}</TD>
@@ -129,20 +127,20 @@ const RecieptPDF = ({ order }) => {
                         </TR>
                     ))}
                 </Table>
-
                 <View style={styles.totals}>
                     <View
                         style={{
                             minWidth: "256px",
                         }}
                     >
-                        {totalData.map((item) => (
+                        {totalData.map((item, index) => (
                             <View
                                 style={{
                                     flexDirection: "row",
                                     justifyContent: "space-between",
                                     marginBottom: "8px",
                                 }}
+                                key={index}
                             >
                                 <Text style={item.label === "Total" ? styles.textBold : {}}>
                                     {item.label}

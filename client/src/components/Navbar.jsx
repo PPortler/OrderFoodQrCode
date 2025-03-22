@@ -9,7 +9,7 @@ function Navbar({ status }) {
                     <a href="/" className={`py-3 ${status === "order" ? "border-b-white border-b-4 rounded-none":""} hover:bg-[#FFCC00] hover:text-black px-3 py-2 transtion-all duration-75`}>ออเดอร์</a>
                     <a href="/manage-menu" className={`py-3 ${status === "menu" ? "border-b-white border-b-4 rounded-none":""} hover:bg-[#FFCC00] hover:text-black px-3 py-2 transtion-all duration-75`}>รายการอาหาร</a>
                     <a href="/manage-table" className={`py-3 ${status === "table" ? "border-b-white border-b-4 rounded-none":""} hover:bg-[#FFCC00] hover:text-black px-3 py-2 transtion-all duration-75`}>จัดการโต๊ะ</a>
-                    <a href="/order-history" className={`py-3 ${status === "order-history" ? "border-b-white border-b-4 rounded-none":""} hover:bg-[#FFCC00] hover:text-black px-3 py-2 transtion-all duration-75`}>ประวัติออเดอร์</a>
+                    <a href="/order-history" className={`py-3 ${status === "order-history" ? "border-b-white border-b-4 rounded-none":""} hover:bg-[#FFCC00] hover:text-black px-3 py-2 transtion-all duration-75`}>สรุปยอดขาย</a>
                 </div>
             </div>
         </div>

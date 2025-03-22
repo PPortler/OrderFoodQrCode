@@ -233,7 +233,7 @@ function OrderPage() {
                 confirmButtonText: 'ตกลง',
                 cancelButtonText: 'ยกเลิก',
                 customClass: {
-                    confirmButton: 'bg-red-400 text-white ',  // ปุ่มตกลง
+                    confirmButton: 'bg-[#FFCC00] text-black ',  // ปุ่มตกลง
                     cancelButton: '',      // ปุ่มยกเลิก
                 }
             });

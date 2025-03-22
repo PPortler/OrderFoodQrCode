@@ -7,7 +7,7 @@ import Icon from '@mdi/react';
 import { mdiDownloadCircle, mdiCheckCircleOutline, mdiListBox, mdiCancel, mdiCash, mdiCalculatorVariant } from '@mdi/js';
 import { Select } from 'antd';
 import ReactPDF from '@react-pdf/renderer';
-import { PDFViewer } from '@react-pdf/renderer';
+import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RecieptPDF from '../../components/RecieptPDF';
 
 function HistoryOrder() {
@@ -27,7 +27,7 @@ function HistoryOrder() {
         try {
             const res = await axios.get(`${process.env.REACT_APP_PORT_API}/api/order-history`);
             // เรียงข้อมูลตามวันที่จากล่าสุดไปหาน้อยสุด
-            const sortedOrders = res.data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            const sortedOrders = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.updatedAt));
             setHistoryOrder(sortedOrders);  // เก็บข้อมูลที่ได้จาก API ลงใน state
             setFilteredOrders(sortedOrders)
             setTimeout(() => {
@@ -91,23 +91,28 @@ function HistoryOrder() {
     const [totalPrice, setTotalPrice] = useState(0);
 
     const calculateTotalPrice = () => {
-        if (!filteredOrders || filteredOrders.length === 0) return 0;
+        if (!Array.isArray(filteredOrders) || filteredOrders.length === 0) return 0;
 
         return filteredOrders.reduce((sum, order) => {
-            return sum + (Number(order.totalPrice) || 0); // ป้องกัน NaN
+            // ลบคอมมาจาก totalPrice ก่อนแปลงเป็นตัวเลข
+            const price = Number(order.totalPrice.replace(/,/g, ''));
+            return sum + (isNaN(price) ? 0 : price); // ถ้าเป็น NaN ให้บวก 0
         }, 0);
     };
 
-    // ใช้ useEffect เพื่ออัปเดต totalPrice อัตโนมัติเมื่อ filteredOrders เปลี่ยน
     useEffect(() => {
-        setTotalPrice(calculateTotalPrice().toLocaleString());
+        const total = calculateTotalPrice();
+        setTotalPrice(total.toLocaleString());
     }, [filteredOrders]);
+
+    console.log(filteredOrders);
+
 
     return (
         <>
             <Navbar status="order-history" />
             <div className="container border-[#FFCC00] border-4 rounded-lg mx-auto p-5 px-10 my-10">
-                <h2 className='text-xl font-bold'>ประวัติการทำรายการ</h2>
+                <h2 className='text-xl font-bold'>สรุปยอดขาย</h2>
                 <div className='flex justify-between items-end mt-5'>
                     <div>
                         <p>สรุปยอดขาย</p>
@@ -235,13 +240,17 @@ function HistoryOrder() {
                                             {order.status !== "รายการถูกยกเลิก" && (
                                                 <>
                                                     <div className='flex justify-end mt-5 '>
-                                                        <PDFViewer className='w-full h-screen'>
-                                                            <RecieptPDF order={order} />
-                                                        </PDFViewer>
-                                                        <div className='bg-[#FFCC00] cursor-pointer flex items-center gap-1 rounded-lg w-fit px-3 py-1'>
-                                                            <Icon path={mdiDownloadCircle} size={.8} />
-                                                            <p>ดาวน์โหลดใบเสร็จ</p>
-                                                        </div>
+                                                        <PDFDownloadLink document={<RecieptPDF order={order} />} fileName={`ใบเสร็จ-${order?.table}-${order?._id}`}>
+                                                            {({ loading }) => (
+                                                                loading ?
+                                                                    <p >กำลังเตรียมใบเสร็จ...</p> :
+                                                                    <div className='bg-[#FFCC00] cursor-pointer flex items-center gap-1 rounded-lg w-fit px-3 py-1 hover:opacity-90 text-black transition-all'>
+                                                                        <Icon path={mdiDownloadCircle} size={.8} />
+                                                                        <p>ดาวน์โหลดใบเสร็จ</p>
+                                                                    </div>
+                                                            )}
+                                                        </PDFDownloadLink>
+
                                                     </div>
                                                 </>
                                             )}
