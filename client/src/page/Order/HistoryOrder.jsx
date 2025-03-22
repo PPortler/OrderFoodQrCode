@@ -14,7 +14,7 @@ function HistoryOrder() {
 
 
     //loader
-    const [loader, setLoader] = useState(false);
+    const [loader, setLoader] = useState(null);
 
     //เรียก order ที่มีอยู่
     const [historyOrder, setHistoryOrder] = useState([])
@@ -113,9 +113,8 @@ function HistoryOrder() {
             <Navbar status="order-history" />
             <div className="container border-[#FFCC00] border-4 rounded-lg mx-auto p-5 px-10 my-10">
                 <h2 className='text-xl font-bold'>สรุปยอดขาย</h2>
-                <div className='flex justify-between items-end mt-5'>
+                <div className='flex justify-between items-end mt-3'>
                     <div>
-                        <p>สรุปยอดขาย</p>
                         <p>เดือน {showMonth} ปี {showYear}</p>
                         <div className='mt-1'>
                             <div className='flex items-center gap-3'>
