@@ -235,16 +235,20 @@ function HistoryOrder() {
                                                     </div>
                                                 </div>
                                             ))}
-                                            <div className='mt-3'>
-                                                <p className="font-bold text-end">ราคารวมทั้งสิ้น: <span className='font-normal'>{order.totalPrice || 0} บาท</span></p>
+                                            <div className='mt-4'>
+                                                <div className='flex justify-end gap-2'>
+                                                    <p className="font-bold text-end ">ราคารวมทั้งสิ้น:</p>
+                                                    <p className="text-end min-w-14">{order.totalPrice || 0} บาท</p>
+                                                </div>
+
                                                 {order.status !== "รายการถูกยกเลิก" && (
                                                     <>
                                                         <div className='flex justify-end mt-3 gap-2'>
-                                                            <p className="font-bold text-end w-16 ">รับมา:</p>
+                                                            <p className="font-bold text-end  ">รับมา:</p>
                                                             <p className="text-end min-w-14 ">{order.getMoney || 0} บาท</p>
                                                         </div>
                                                         <div className='flex justify-end gap-2'>
-                                                            <p className="font-bold text-end w-16">เงินทอน:</p>
+                                                            <p className="font-bold text-end ">เงินทอน:</p>
                                                             <p className="text-end min-w-14">{order.changeMoney || 0} บาท</p>
                                                         </div>
                                                     </>
