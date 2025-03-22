@@ -205,7 +205,7 @@ function HistoryOrder() {
                                                 {order.status === "รายการถูกยกเลิก" ? (
                                                     <p className="font-bold text-red-400 text-xl">รายการถูกยกเลิก</p>
                                                 ) : (
-                                                    <p className="font-bold text-green-400 text-xl">{order.totalPrice} +</p>
+                                                    <p className="font-bold text-green-400 text-xl">฿ {order.totalPrice} +</p>
                                                 )}
                                             </div>
                                         </div>
@@ -235,10 +235,27 @@ function HistoryOrder() {
                                                     </div>
                                                 </div>
                                             ))}
-                                            <p className="font-bold mt-2 text-end">รวม {order.totalPrice} บาท</p>
+                                            <div className='mt-3'>
+                                                <p className="font-bold text-end">ราคารวมทั้งสิ้น: <span className='font-normal'>{order.totalPrice || 0} บาท</span></p>
+                                                {order.status !== "รายการถูกยกเลิก" && (
+                                                    <>
+                                                        <div className='flex justify-end mt-3 gap-2'>
+                                                            <p className="font-bold text-end w-16 ">รับมา:</p>
+                                                            <p className="text-end min-w-14 ">{order.getMoney || 0} บาท</p>
+                                                        </div>
+                                                        <div className='flex justify-end gap-2'>
+                                                            <p className="font-bold text-end w-16">เงินทอน:</p>
+                                                            <p className="text-end min-w-14">{order.changeMoney || 0} บาท</p>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
                                             {order.status !== "รายการถูกยกเลิก" && (
                                                 <>
                                                     <div className='flex justify-end mt-5 '>
+                                                        {/* <PDFViewer className='w-screen h-screen'>
+                                                            <RecieptPDF order={order} />
+                                                        </PDFViewer> */}
                                                         <PDFDownloadLink document={<RecieptPDF order={order} />} fileName={`ใบเสร็จ-${order?.table}-${order?._id}`}>
                                                             {({ loading }) => (
                                                                 loading ?

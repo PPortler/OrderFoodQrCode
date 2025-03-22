@@ -74,6 +74,14 @@ const RecieptPDF = ({ order }) => {
             label: "รวมทั้งสิ้น",
             value: `${order.totalPrice} บาท`,
         },
+        {
+            label: "รับมา",
+            value: `${order.getMoney || 0} บาท`,
+        },
+        {
+            label: "เงินทอน",
+            value: `${order.changeMoney || 0} บาท`,
+        },
     ];
 
     const formatDateTimeThai = (isoDate) => {
@@ -107,7 +115,7 @@ const RecieptPDF = ({ order }) => {
                     <View style={styles.spaceY}>
                         <Text style={styles.textBold}>จิ้มจุ้มลานนา มหาสารคาม</Text>
                         <Text>147 ม.2 มหาสารคาม, ตำบลลานสะแก</Text>
-                        <Text> อำเภอพยัคฆภูมิพิสัย 44110</Text>
+                        <Text> อำเภอเมือง 44110</Text>
                     </View>
                 </View>
                 {/* Render the table */}
@@ -138,7 +146,7 @@ const RecieptPDF = ({ order }) => {
                                 style={{
                                     flexDirection: "row",
                                     justifyContent: "space-between",
-                                    marginBottom: "8px",
+                                    marginBottom: "1px",
                                 }}
                                 key={index}
                             >

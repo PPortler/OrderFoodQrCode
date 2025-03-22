@@ -224,29 +224,68 @@ function OrderPage() {
                 status = "รายการถูกยกเลิก"
             }
         }
+
+        //ราคารวม
+        const totalPrice = calculateTotalPrice(orders[tableKey]?.menu)
+        //ชำระเงิน
+        let getMoney = 0
         if (value === "ได้รับอาหารครบแล้ว") {
-            const result = await Swal.fire({
+            // ขอให้ลูกค้ากรอกจำนวนเงินที่จ่าย
+            const paymentResult = await Swal.fire({
+                title: "ยืนยันการรับเงินจำนวน (บาท)",
+                text: `ราคาอาหารทั้งหมด ฿ ${totalPrice}`,
+                input: "text",
+                inputAttributes: {
+                    autocapitalize: "off"
+                },
+                showCancelButton: true,
+                confirmButtonText: 'ตกลง',
+                cancelButtonText: 'ยกเลิก',
+                customClass: {
+                    confirmButton: 'bg-[#FFCC00] text-black ',  // ปุ่มตกลง
+                },
+                showLoaderOnConfirm: true,
+                preConfirm: (money) => {
+                    // แปลงเงินเป็นตัวเลข และลบเครื่องหมาย ,
+                    const amountReceived = parseFloat(money.replace(/,/g, ''));
+
+                    // ตรวจสอบว่าเป็นตัวเลข และต้องไม่น้อยกว่ายอดที่ต้องจ่าย
+                    if (isNaN(amountReceived) || amountReceived < totalPrice) {
+                        Swal.showValidationMessage(`กรุณากรอกจำนวนเงินที่ถูกต้อง (ไม่น้อยกว่า ฿${totalPrice.toLocaleString()})`);
+                        return false;
+                    }
+                    getMoney = amountReceived;
+                    return amountReceived; // คืนค่าเงินที่ได้รับ
+                }
+            });
+
+            // ถ้ากด "ยกเลิก" ให้หยุดทำงาน
+            if (!paymentResult.isConfirmed) return;
+
+            // คำนวณเงินทอน
+            const change = paymentResult.value - totalPrice;
+
+            // แสดงหน้าต่างยืนยันการชำระเงิน
+            const confirmResult = await Swal.fire({
                 title: 'ชำระเงินแล้ว',
-                text: 'คุณต้องการยืนยันการชำระเงินของรายการนี้?',
+                text: `คุณต้องการยืนยันการชำระเงินของรายการนี้หรือไม่?\n\nเงินทอน: ฿${change.toLocaleString()}`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'ตกลง',
                 cancelButtonText: 'ยกเลิก',
                 customClass: {
                     confirmButton: 'bg-[#FFCC00] text-black ',  // ปุ่มตกลง
-                    cancelButton: '',      // ปุ่มยกเลิก
                 }
             });
 
-            // ถ้าเลือก 'ใช่, ยกเลิก'
-            if (result.isConfirmed) {
+            // ถ้ากด "ตกลง" → อัปเดตสถานะเป็น "ชำระเงินแล้ว"
+            if (confirmResult.isConfirmed) {
                 allowed = true;
-                status = "ชำระเงินแล้ว"
-
+                status = "ชำระเงินแล้ว";
             }
         }
 
-        const totalPrice = calculateTotalPrice(orders[tableKey]?.menu)
+        const changeMoney = getMoney-totalPrice;
         if (allowed) {
             setLoader(true);
             let NewOrder = {
@@ -254,7 +293,9 @@ function OrderPage() {
                 [tableKey]: {
                     ...orders[tableKey], // คงข้อมูลเดิมของโต๊ะ
                     status: status,    // อัพเดตสถานะใหม่
-                    totalPrice: totalPrice
+                    totalPrice: totalPrice,
+                    getMoney: getMoney.toLocaleString(),
+                    changeMoney: changeMoney.toLocaleString()
                 },
             }
             try {

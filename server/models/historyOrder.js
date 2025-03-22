@@ -37,6 +37,12 @@ let historyOrderSchema = new Schema({
     totalPrice: {
         type: String,
     },
+    getMoney: {
+        type: String,
+    },
+    changeMoney: {
+        type: String,
+    },
     customerNote: {
         type: String
     }
