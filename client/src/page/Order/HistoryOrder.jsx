@@ -105,8 +105,52 @@ function HistoryOrder() {
         setTotalPrice(total.toLocaleString());
     }, [filteredOrders]);
 
-    console.log(filteredOrders);
+    console.log(historyOrder);
 
+    //ยอดรายวัน
+    // จัดกลุ่มข้อมูลตามเดือนและวัน
+    const groupedData = historyOrder.reduce((acc, order) => {
+        const date = new Date(order.createdAt);
+        const month = date.toLocaleString("th-TH", { month: "long", year: "numeric" }); // แสดงเดือน + ปี
+        const day = date.toISOString().split("T")[0]; // รูปแบบ YYYY-MM-DD
+
+        if (!acc[month]) {
+            acc[month] = {};
+        }
+
+        if (!acc[month][day]) {
+            acc[month][day] = [];
+        }
+
+        acc[month][day].push(order);
+
+        return acc;
+    }, {});
+
+    // แปลงข้อมูลเป็นรูปแบบที่ใช้กับ Ant Design
+    const items = Object.entries(groupedData).map(([month, days], index) => ({
+        key: String(index + 1),
+        label: (
+            <div className='flex justify-between'>
+                <p>{month}</p>
+            </div>
+        ),
+        children: (
+            <div>
+                {Object.entries(days).map(([day, orders]) => (
+                    <div key={day} style={{ marginBottom: "10px", padding: "5px", borderBottom: "1px solid #ddd" }}>
+                        <strong>{new Date(day).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" })}</strong>
+                        {orders.map((order) => (
+                            <p key={order._id}>
+                                {/* แสดงเวลาในรูปแบบ HH:mm (เช่น 11:30) */}
+                                {new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false })} - โต๊ะ {order.table} - ยอด ฿{Number(order.totalPrice).toLocaleString()}
+                            </p>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        ),
+    }));
 
     return (
         <>
@@ -183,7 +227,14 @@ function HistoryOrder() {
                     </div>
                 </div>
                 <div className='mt-5'>
-                    <div className="mt-5">
+                    <p className='font-bold text-lg'>สรุปยอดรายวัน</p>
+                    <div className='mt-3'>
+                        <Collapse items={items}/>
+                    </div>
+                </div>
+                <div className='mt-5'>
+                    <p className='font-bold text-lg'>ประวัติออเดอร์</p>
+                    <div className="mt-3">
                         {displayedOrders?.map((order, index) => {
                             const items = [
                                 {
