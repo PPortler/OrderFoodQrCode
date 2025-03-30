@@ -95,11 +95,14 @@ function HistoryOrder() {
         if (!Array.isArray(filteredOrders) || filteredOrders.length === 0) return 0;
 
         return filteredOrders.reduce((sum, order) => {
-            // ลบคอมมาจาก totalPrice ก่อนแปลงเป็นตัวเลข
-            const price = Number(order.totalPrice.replace(/,/g, ''));
+            if (order.status === "รายการถูกยกเลิก") {
+                return sum; // ข้ามรายการที่ถูกยกเลิก
+            }
+            const price = Number(order.totalPrice.toString().replace(/,/g, ''));
             return sum + (isNaN(price) ? 0 : price); // ถ้าเป็น NaN ให้บวก 0
         }, 0);
     };
+    console.log(filteredOrders)
 
     useEffect(() => {
         const total = calculateTotalPrice();
@@ -155,7 +158,7 @@ function HistoryOrder() {
                                 {orders.map((order) => (
                                     <p key={order._id}>
                                         {new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false })} -
-                                        โต๊ะ {order.table} - ยอด ฿{Number(order.totalPrice).toLocaleString() === "NaN" ? 0 : Number(order.totalPrice).toLocaleString()}
+                                        โต๊ะ {order.table} - ยอด ฿ {order.status === "รายการถูกยกเลิก" ? "0" : (Number(order.totalPrice.toString().replace(/,/g, ''))).toLocaleString()}
                                     </p>
                                 ))}
                             </div>
