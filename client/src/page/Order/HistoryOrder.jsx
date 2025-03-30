@@ -4,11 +4,12 @@ import Loader from '../../components/Loader';
 import axios from 'axios';
 import { Collapse, Pagination } from 'antd';
 import Icon from '@mdi/react';
-import { mdiDownloadCircle, mdiCheckCircleOutline, mdiListBox, mdiCancel, mdiCash, mdiCalculatorVariant } from '@mdi/js';
+import { mdiDownloadCircle, mdiCheckCircleOutline, mdiListBox, mdiCancel, mdiCash, mdiCalculatorVariant, mdiExportVariant } from '@mdi/js';
 import { Select } from 'antd';
 import ReactPDF from '@react-pdf/renderer';
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
 import RecieptPDF from '../../components/RecieptPDF';
+import TotalSummary from '../../components/TotalSummary'
 
 function HistoryOrder() {
 
@@ -105,8 +106,6 @@ function HistoryOrder() {
         setTotalPrice(total.toLocaleString());
     }, [filteredOrders]);
 
-    console.log(historyOrder);
-
     //ยอดรายวัน
     // จัดกลุ่มข้อมูลตามเดือนและวัน
     const groupedData = historyOrder.reduce((acc, order) => {
@@ -128,29 +127,58 @@ function HistoryOrder() {
     }, {});
 
     // แปลงข้อมูลเป็นรูปแบบที่ใช้กับ Ant Design
-    const items = Object.entries(groupedData).map(([month, days], index) => ({
-        key: String(index + 1),
-        label: (
-            <div className='flex justify-between'>
-                <p>{month}</p>
-            </div>
-        ),
-        children: (
-            <div>
-                {Object.entries(days).map(([day, orders]) => (
-                    <div key={day} style={{ marginBottom: "10px", padding: "5px", borderBottom: "1px solid #ddd" }}>
-                        <strong>{new Date(day).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" })}</strong>
-                        {orders.map((order) => (
-                            <p key={order._id}>
-                                {/* แสดงเวลาในรูปแบบ HH:mm (เช่น 11:30) */}
-                                {new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false })} - โต๊ะ {order.table} - ยอด ฿{Number(order.totalPrice).toLocaleString()}
-                            </p>
+    const monthOrder = {
+        "มกราคม": 1, "กุมภาพันธ์": 2, "มีนาคม": 3, "เมษายน": 4, "พฤษภาคม": 5, "มิถุนายน": 6,
+        "กรกฎาคม": 7, "สิงหาคม": 8, "กันยายน": 9, "ตุลาคม": 10, "พฤศจิกายน": 11, "ธันวาคม": 12
+    };
+    const items = Object.entries(groupedData)
+        .sort(([a], [b]) => {
+            const [monthA, yearA] = a.split(" "); // แยก "เดือน" และ "ปี"
+            const [monthB, yearB] = b.split(" ");
+            return yearA - yearB || monthOrder[monthA] - monthOrder[monthB]; // เรียงปี -> เดือน
+        })
+        .map(([month, days], index) => ({
+            key: String(index + 1),
+            label: (
+                <div className='flex justify-between'>
+                    <p>{month}</p>
+                </div>
+            ),
+
+            children: (
+                <div>
+                    {Object.entries(days)
+                        .sort(([a], [b]) => new Date(a) - new Date(b)) // เรียงวันที่จากน้อยไปมาก
+                        .map(([day, orders]) => (
+                            <div key={day} style={{ marginBottom: "10px", padding: "5px", borderBottom: "1px solid #ddd" }}>
+                                <strong>{new Date(day).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" })}</strong>
+                                {orders.map((order) => (
+                                    <p key={order._id}>
+                                        {new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false })} -
+                                        โต๊ะ {order.table} - ยอด ฿{Number(order.totalPrice).toLocaleString()}
+                                    </p>
+                                ))}
+                            </div>
                         ))}
-                    </div>
-                ))}
-            </div>
-        ),
-    }));
+                    {/* <PDFViewer className='w-screen h-screen'>
+                        <TotalSummary order={groupedData[`${month}`] || {}} month={month}/>
+                    </PDFViewer> */}
+                    <PDFDownloadLink document={<TotalSummary order={groupedData[`${month}`] || {}} month={month} />} fileName={`ยอดรวม-${month}`}>
+                        {({ loading }) => (
+                            loading ?
+                                <p >กำลังเตรียมใบเสร็จ...</p> :
+                                <div className='flex justify-end'>
+                                    <div className='bg-[#FFCC00] cursor-pointer flex gap-1 rounded-lg w-fit px-3 py-1 hover:opacity-90 text-black transition-all'>
+                                        <Icon path={mdiExportVariant} size={.8} />
+                                        <p className=''>Export PDF</p>
+                                    </div>
+                                </div>
+                        )}
+                    </PDFDownloadLink>
+
+                </div>
+            ),
+        }));
 
     return (
         <>
@@ -227,9 +255,9 @@ function HistoryOrder() {
                     </div>
                 </div>
                 <div className='mt-5'>
-                    <p className='font-bold text-lg'>สรุปยอดรายวัน</p>
+                    <p className='font-bold text-lg'>สรุปยอดรายเดือน</p>
                     <div className='mt-3'>
-                        <Collapse items={items}/>
+                        <Collapse items={items} />
                     </div>
                 </div>
                 <div className='mt-5'>
