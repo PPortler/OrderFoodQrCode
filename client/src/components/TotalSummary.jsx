@@ -89,6 +89,7 @@ const TotalSummary = ({ order, month }) => {
 
         // วนลูปผ่าน orders ที่เรียงตามเวลา
         sortedOrders.forEach((orderItem) => {
+
             // แปลง createdAt เป็นเวลาที่ต้องการ
             const createdAt = new Date(orderItem.createdAt); // แปลง ISO string เป็น Date object
             const formattedTime = createdAt.toLocaleString('th-TH', {
@@ -105,17 +106,18 @@ const TotalSummary = ({ order, month }) => {
                 date: date,
                 table: orderItem.table,
                 status: orderItem.status,
-                totalPrice: orderItem.totalPrice,
+                totalPrice: orderItem.totalPrice.replace(/,/g, ''),
                 getMoney: orderItem.getMoney,
                 changeMoney: orderItem.changeMoney,
                 createdAt: formattedTime,  // เพิ่มเวลา
             });
 
-            // คำนวณยอดรวมของแต่ละวัน Number(order.totalPrice.replace(/,/g, ''));
-            totalPriceForDate += orderItem.totalPrice ? Number(orderItem.totalPrice.replace(/,/g, '')) : 0;
-            getMoneyForDate += orderItem.getMoney ? Number(orderItem.getMoney.replace(/,/g, '')) : 0;
-            changeMoneyForDate += orderItem.changeMoney ? Number(orderItem.changeMoney.replace(/,/g, '')) : 0;
-
+            if (orderItem.status !== "รายการถูกยกเลิก") {  // ถ้าสถานะไม่ใช่ "ยกเลิก"
+                // คำนวณยอดรวมของแต่ละวัน (เฉพาะรายการที่ไม่ถูกยกเลิก)
+                totalPriceForDate += orderItem.totalPrice ? Number(orderItem.totalPrice.replace(/,/g, '')) : 0;
+                getMoneyForDate += orderItem.getMoney ? Number(orderItem.getMoney.replace(/,/g, '')) : 0;
+                changeMoneyForDate += orderItem.changeMoney ? Number(orderItem.changeMoney.replace(/,/g, '')) : 0;
+            }
         });
 
         // เก็บข้อมูลยอดรวมของแต่ละวัน
@@ -139,6 +141,7 @@ const TotalSummary = ({ order, month }) => {
         totalMonthlyChangeMoney: totalMonthlyChangeMoney.toLocaleString('th-TH') // แสดงยอดรวม changeMoney ในรูปแบบที่มีคอมม่า
     });
 
+    console.log(tableData)
 
     const totalData = [
         {
@@ -201,7 +204,7 @@ const TotalSummary = ({ order, month }) => {
                                 <TD style={styles.td}>{item.createdAt}</TD>
                                 <TD style={styles.td}>{item.table}</TD>
                                 <TD style={styles.td}>{item.status}</TD>
-                                <TD style={styles.td}>฿{parseFloat(item.totalPrice).toFixed(2)}</TD>
+                                <TD style={styles.td}>฿{parseFloat(item.totalPrice).toLocaleString()}</TD>
                             </TR>
                         ))}
                     </Table>

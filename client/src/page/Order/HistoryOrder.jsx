@@ -155,7 +155,7 @@ function HistoryOrder() {
                                 {orders.map((order) => (
                                     <p key={order._id}>
                                         {new Date(order.createdAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", hour12: false })} -
-                                        โต๊ะ {order.table} - ยอด ฿{Number(order.totalPrice).toLocaleString()}
+                                        โต๊ะ {order.table} - ยอด ฿{Number(order.totalPrice).toLocaleString() === "NaN" ? 0 : Number(order.totalPrice).toLocaleString()}
                                     </p>
                                 ))}
                             </div>

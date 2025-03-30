@@ -250,7 +250,7 @@ function OrderPage() {
                     const amountReceived = parseFloat(money.replace(/,/g, ''));
 
                     // ตรวจสอบว่าเป็นตัวเลข และต้องไม่น้อยกว่ายอดที่ต้องจ่าย
-                    if (isNaN(amountReceived) || amountReceived < totalPrice) {
+                    if (!Number(amountReceived) || amountReceived < Number(totalPrice.toString().replace(/,/g, ''))) {
                         Swal.showValidationMessage(`กรุณากรอกจำนวนเงินที่ถูกต้อง (ไม่น้อยกว่า ฿${totalPrice.toLocaleString()})`);
                         return false;
                     }
@@ -263,7 +263,7 @@ function OrderPage() {
             if (!paymentResult.isConfirmed) return;
 
             // คำนวณเงินทอน
-            const change = paymentResult.value - totalPrice;
+            const change = paymentResult.value - Number(totalPrice.toString().replace(/,/g, ''));
 
             // แสดงหน้าต่างยืนยันการชำระเงิน
             const confirmResult = await Swal.fire({
@@ -285,7 +285,9 @@ function OrderPage() {
             }
         }
 
-        const changeMoney = getMoney-totalPrice;
+        console.log(totalPrice)
+        const changeMoney = Number(getMoney)-Number(totalPrice.toString().replace(/,/g, ''));
+        console.log(changeMoney)
         if (allowed) {
             setLoader(true);
             let NewOrder = {
