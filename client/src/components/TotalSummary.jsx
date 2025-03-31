@@ -46,7 +46,10 @@ const styles = StyleSheet.create({
     table: {
         width: "100%",
         borderColor: "1px solid #f3f4f6",
-        margin: "14px 0",
+        margin: "6px 0",
+    },
+    titleTable: {
+        fontSize: 14,
     },
     tableHeader: {
         backgroundColor: "#e5e5e5",
@@ -58,11 +61,15 @@ const styles = StyleSheet.create({
         display: "flex",
         alignItems: "flex-end",
     },
+    tableContent: {
+        margin: "14px 0"
+    }
 });
 
 
 const TotalSummary = ({ order, month }) => {
     const tableData = []; // สร้าง array เปล่าสำหรับเก็บข้อมูล
+    let tableDataSummary = []; // สร้าง array เปล่าสำหรับเก็บข้อมูล
     const dailySummary = {}; // ใช้เก็บยอดรวมของแต่ละวัน
 
     let totalMonthlyPrice = 0; // ตัวแปรเก็บยอดรวมของ totalPrice ทั้งเดือน
@@ -120,19 +127,47 @@ const TotalSummary = ({ order, month }) => {
             }
         });
 
-        // เก็บข้อมูลยอดรวมของแต่ละวัน
-        dailySummary[date] = {
-            totalPrice: totalPriceForDate,
-            getMoney: getMoneyForDate,
-            changeMoney: changeMoneyForDate
-        };
+        const dailySummary = tableData.reduce((acc, item) => {
+            const { date, totalPrice, getMoney, changeMoney, status } = item;
+            // ข้ามรายการที่ถูกยกเลิก
+            if (status === "รายการถูกยกเลิก") {
+                return acc;
+            }
+            // ถ้ายังไม่มีวันที่นี้ใน object ให้กำหนดค่าเริ่มต้น
+            if (!acc[date]) {
+                acc[date] = {
+                    date,
+                    totalPrice: 0,
+                    getMoney: 0,
+                    changeMoney: 0
+                };
+            }
+
+            // รวมยอดของแต่ละวัน
+            acc[date].totalPrice += Number(totalPrice.replace(/,/g, ''));
+            acc[date].getMoney += Number(getMoney.replace(/,/g, ''));
+            acc[date].changeMoney += Number(changeMoney.replace(/,/g, ''));
+
+            return acc;
+        }, {});
+
+        // แปลง object เป็น array
+        tableDataSummary = Object.values(dailySummary);
+
+        tableDataSummary = Object.values(dailySummary).map(item => ({
+            ...item,
+            date: new Date(item.date).toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }) // แสดงวันที่แบบไทย
+        }));
 
         // คำนวณยอดรวมทั้งหมดของเดือน
         totalMonthlyPrice += totalPriceForDate; // เพิ่มยอดรวมของ totalPrice ทั้งเดือน
         totalMonthlyGetMoney += getMoneyForDate; // เพิ่มยอดรวมของ getMoney ทั้งเดือน
         totalMonthlyChangeMoney += changeMoneyForDate; // เพิ่มยอดรวมของ changeMoney ทั้งเดือน
     });
-
     const totalData = [
         {
             label: "รวมทั้งสิ้น",
@@ -158,15 +193,12 @@ const TotalSummary = ({ order, month }) => {
     const renderTableHeader = () => (
         <TH style={[styles.tableHeader, styles.textBold]}>
             <TD style={styles.td}>วันที่</TD>
-            <TD style={styles.td}>โต๊ะ</TD>
-            <TD style={styles.td}>สถานะ</TD>
-            <TD style={styles.td}>ยอดรวม</TD>
+            <TD style={styles.td}>ยอดขายรวม (บาท)</TD>
         </TH>
     );
 
     const itemsPerPage = 20; // ตั้งค่าแถวที่จะแสดงในแต่ละหน้า
     const pages = Math.ceil(tableData.length / itemsPerPage); // คำนวณจำนวนหน้าจากจำนวนข้อมูล
-
     return (
         <Document>
             {[...Array(pages)].map((_, pageIndex) => (
@@ -184,21 +216,27 @@ const TotalSummary = ({ order, month }) => {
                         </View>
                     </View>
 
-                    {/* Render the table header */}
-                    <Table style={styles.table}>
-                        {renderTableHeader()}
+                    <View style={styles.tableContent}>
+                        {/* Render the table header */}
+                        <Text style={[styles.titleTable, styles.textBold]}>สรุปยอดขายรวมแต่ละวัน</Text>
 
-                        {/* Render rows for the current page */}
-                        {(tableData || []).slice(pageIndex * itemsPerPage, (pageIndex + 1) * itemsPerPage).map((item, index) => (
-                            <TR key={index}>
-                                <TD style={styles.td}>{item.createdAt}</TD>
-                                <TD style={styles.td}>{item.table}</TD>
-                                <TD style={styles.td}>{item.status}</TD>
-                                <TD style={styles.td}>฿{parseFloat(item.totalPrice).toLocaleString()}</TD>
+                        <Table style={styles.table}>
+                            {renderTableHeader()}
+
+                            {/* Render rows for the current page */}
+                            {(tableDataSummary || []).slice(pageIndex * itemsPerPage, (pageIndex + 1) * itemsPerPage).map((item, index) => (
+                                <TR key={index}>
+                                    <TD style={styles.td}>{item.date}</TD>
+                                    <TD style={styles.td}>{item.totalPrice.toLocaleString()} บาท</TD>
+                                </TR>
+                            ))}
+                            <TR>
+                                <TD style={[styles.td, styles.titleTd]} >รวมทั้งหมด</TD>
+                                <TD style={styles.td}>{totalMonthlyPrice.toLocaleString()} บาท</TD>
                             </TR>
-                        ))}
-                    </Table>
-                    {/* Show total at the last page */}
+                        </Table>
+                    </View>
+                    {/* Show total at the last page
                     {pageIndex === pages - 1 && (
                         <View style={styles.totals}>
                             <View style={{ minWidth: '256px' }}>
@@ -212,7 +250,7 @@ const TotalSummary = ({ order, month }) => {
                                 ))}
                             </View>
                         </View>
-                    )}
+                    )} */}
                 </Page>
             ))}
         </Document>

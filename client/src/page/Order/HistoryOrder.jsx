@@ -126,8 +126,6 @@ function HistoryOrder() {
             return item;
         }).join('-'); // รูปแบบ YYYY-MM-DD
 
-        console.log("date", date)
-        console.log("day", day)
         if (!acc[month]) {
             acc[month] = {};
         }
@@ -164,9 +162,15 @@ function HistoryOrder() {
 
             children: (
                 <div>
-                    {Object.entries(days)
-                        .sort(([a], [b]) => new Date(a) - new Date(b)) // เรียงวันที่จากน้อยไปมาก
-                        .map(([day, orders]) => (
+                {Object.entries(days)
+                    .sort(([a], [b]) => new Date(a) - new Date(b)) // เรียงวันที่จากน้อยไปมาก
+                    .map(([day, orders]) => {
+                        // ✅ คำนวณยอดรวมของแต่ละวัน (เฉพาะรายการที่ไม่ถูกยกเลิก)
+                        const totalSumForDay = orders
+                            .filter(order => order.status !== "รายการถูกยกเลิก") // ตัดคำสั่งซื้อที่ถูกยกเลิกออก
+                            .reduce((sum, order) => sum + Number(order.totalPrice.toString().replace(/,/g, '')), 0);
+
+                        return (
                             <div key={day} style={{ marginBottom: "10px", padding: "5px", borderBottom: "1px solid #ddd" }}>
                                 <strong>{new Date(day).toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" })}</strong>
                                 {orders.map((order) => (
@@ -175,27 +179,27 @@ function HistoryOrder() {
                                         โต๊ะ {order.table} - ยอด ฿ {order.status === "รายการถูกยกเลิก" ? "0" : (Number(order.totalPrice.toString().replace(/,/g, ''))).toLocaleString()}
                                     </p>
                                 ))}
+                                {/* ✅ เพิ่มยอดรวมของวันนั้น */}
+                                <p className='mt-5'><strong>ยอดรวม: ฿ {totalSumForDay.toLocaleString()}</strong></p>
                             </div>
-                        ))}
-                    {/* <PDFViewer className='w-screen h-screen'>
-                        <TotalSummary order={groupedData[`${month}`] || {}} month={month}/>
-                    </PDFViewer> */}
-                    <PDFDownloadLink document={<TotalSummary order={groupedData[`${month}`] || {}} month={month} />} fileName={`ยอดรวม-${month}`}>
-                        {({ loading }) => (
-                            loading ?
-                                <p >กำลังเตรียมใบเสร็จ...</p> :
-                                <div className='flex justify-end'>
-                                    <div className='bg-[#FFCC00] cursor-pointer flex gap-1 rounded-lg w-fit px-3 py-1 hover:opacity-90 text-black transition-all'>
-                                        <Icon path={mdiExportVariant} size={.8} />
-                                        <p className=''>Export PDF</p>
-                                    </div>
+                        );
+                    })}
+                <PDFDownloadLink document={<TotalSummary order={groupedData[`${month}`] || {}} month={month} />} fileName={`ยอดรวม-${month}`}>
+                    {({ loading }) => (
+                        loading ?
+                            <p>กำลังเตรียมใบเสร็จ...</p> :
+                            <div className='flex justify-end'>
+                                <div className='bg-[#FFCC00] cursor-pointer flex gap-1 rounded-lg w-fit px-3 py-1 hover:opacity-90 text-black transition-all'>
+                                    <Icon path={mdiExportVariant} size={.8} />
+                                    <p className=''>Export PDF</p>
                                 </div>
-                        )}
-                    </PDFDownloadLink>
-
-                </div>
+                            </div>
+                    )}
+                </PDFDownloadLink>
+            </div>
             ),
         }));
+
 
     return (
         <>
