@@ -102,7 +102,6 @@ function HistoryOrder() {
             return sum + (isNaN(price) ? 0 : price); // ถ้าเป็น NaN ให้บวก 0
         }, 0);
     };
-    console.log(filteredOrders)
 
     useEffect(() => {
         const total = calculateTotalPrice();
@@ -113,12 +112,26 @@ function HistoryOrder() {
     // จัดกลุ่มข้อมูลตามเดือนและวัน
     const groupedData = historyOrder.reduce((acc, order) => {
         const date = new Date(order.createdAt);
-        const month = date.toLocaleString("th-TH", { month: "long", year: "numeric" }); // แสดงเดือน + ปี
-        const day = date.toISOString().split("T")[0]; // รูปแบบ YYYY-MM-DD
 
+        const month = date.toLocaleString("th-TH", { month: "long", year: "numeric" }); // แสดงเดือน + ปี
+        const day = date.toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).split('/').reverse().map((item, index) => {
+            // ลดปี พ.ศ. ลง 543 เพื่อแปลงเป็น ค.ศ.
+            if (index === 0) {
+                return item - 543; // แปลงปีจาก พ.ศ. เป็น ค.ศ.
+            }
+            return item;
+        }).join('-'); // รูปแบบ YYYY-MM-DD
+
+        console.log("date", date)
+        console.log("day", day)
         if (!acc[month]) {
             acc[month] = {};
         }
+
 
         if (!acc[month][day]) {
             acc[month][day] = [];
@@ -128,6 +141,7 @@ function HistoryOrder() {
 
         return acc;
     }, {});
+
 
     // แปลงข้อมูลเป็นรูปแบบที่ใช้กับ Ant Design
     const monthOrder = {

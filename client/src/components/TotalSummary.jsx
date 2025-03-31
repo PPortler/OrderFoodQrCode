@@ -133,16 +133,6 @@ const TotalSummary = ({ order, month }) => {
         totalMonthlyChangeMoney += changeMoneyForDate; // เพิ่มยอดรวมของ changeMoney ทั้งเดือน
     });
 
-    // แสดงยอดรวมทั้งเดือน
-    console.log("ยอดรวมทั้งหมดของเดือน:");
-    console.log({
-        totalMonthlyPrice: totalMonthlyPrice.toLocaleString('th-TH'), // แสดงยอดรวม totalPrice ในรูปแบบที่มีคอมม่า
-        totalMonthlyGetMoney: totalMonthlyGetMoney.toLocaleString('th-TH'), // แสดงยอดรวม getMoney ในรูปแบบที่มีคอมม่า
-        totalMonthlyChangeMoney: totalMonthlyChangeMoney.toLocaleString('th-TH') // แสดงยอดรวม changeMoney ในรูปแบบที่มีคอมม่า
-    });
-
-    console.log(tableData)
-
     const totalData = [
         {
             label: "รวมทั้งสิ้น",
